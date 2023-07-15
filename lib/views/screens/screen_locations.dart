@@ -1,10 +1,14 @@
 
 //import 'dart:convert';
 
+import 'dart:math';
+
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:http/http.dart' as http;
 
@@ -17,11 +21,46 @@ class ScreenLocations extends StatefulWidget {
 
 class _ScreenLocationsState extends State<ScreenLocations> {
   late Future <List<Station>> listStations;
+
+  LatLng sourceLocation = const LatLng(-8.8905235, 13.2274002);
+  LatLng destination = const LatLng(-8.8649484, 13.2939577);
+
+  double degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    double earthRadius = 6371; // em quilômetros
+
+    double dLat = degreesToRadians(lat2 - lat1);
+    double dLon = degreesToRadians(lon2 - lon1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(degreesToRadians(lat1)) * cos(degreesToRadians(lat2)) *
+        sin(dLon / 2) * sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    double distance = earthRadius * c;
+
+    double roundedDistance = double.parse(distance.toStringAsFixed(2));
+    return roundedDistance;
+  }
+  
   @override
   void initState() {
 
     super.initState();
     listStations = getStations();
+
+    /*double distance = calculateDistance(widget.sourceLocation.latitude, widget.sourceLocation.longitude,
+     widget.destination.latitude, widget.destination.longitude);
+
+     double roundedDistance = double.parse(distance.toStringAsFixed(2));
+    print("Distancia entre pontos $roundedDistance");*/
+
+    print("Distancia entre pontos ${StationController.lat}");
+     
   }
   @override
   Widget build(BuildContext context) {
@@ -87,12 +126,19 @@ class _ScreenLocationsState extends State<ScreenLocations> {
                             //leading: Icon(Icons.arrow_downward),
                             
                             leading: Icon(
-                                color: Colors.blueAccent,
+                                color: Colors.red,
                                   Icons.location_pin,
                             ),
                             title: Text(station.address,style: const TextStyle(color: Colors.black54),),
                             subtitle: Text(station.name,style: const TextStyle(color: Colors.black54,fontSize: 11),),
-                            
+                            trailing: Text(
+                              "${calculateDistance(
+                                StationController.lat, 
+                                StationController.long,
+                                station.lat,
+                                station.long
+                              )} Km"
+                            ),
                           );
                         },
                         padding: const EdgeInsets.all(16),
@@ -113,6 +159,7 @@ class _ScreenLocationsState extends State<ScreenLocations> {
   }
 
   Future<List<Station>> getStations() async{
+
     return StationRepository.list;
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
 

@@ -1,4 +1,6 @@
 
+import 'dart:math';
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/components/station_details.dart';
@@ -11,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as IMG;
@@ -38,7 +39,7 @@ class _ScreenHomeState extends State<ScreenHome> {
 
   //variavel que vai controlar o mapa
   late GoogleMapController _mapsController;
-  String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
+  String googleKey = "AIzaSyDFbFxPiczX2GO_iVLeTbzoBGSsw6ma938";//AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw
   
   double lat = 0.0;
   double long = 0.0;
@@ -85,6 +86,27 @@ class _ScreenHomeState extends State<ScreenHome> {
     );
   }*/
 
+  double degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    double earthRadius = 6371; // em quilômetros
+
+    double dLat = degreesToRadians(lat2 - lat1);
+    double dLon = degreesToRadians(lon2 - lon1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(degreesToRadians(lat1)) * cos(degreesToRadians(lat2)) *
+        sin(dLon / 2) * sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    double distance = earthRadius * c;
+    return distance;
+  }
+
+
   void setPolylines() async{
     print("Antes");
     
@@ -110,7 +132,7 @@ class _ScreenHomeState extends State<ScreenHome> {
         setState(() {
           _polylines.add(
             Polyline(
-            width: 10,
+            width: 3,
             polylineId: PolylineId('polyLine'),
             color: Color.fromARGB(255, 9, 67, 82),
             points: polylineCoordinates)
@@ -149,6 +171,9 @@ class _ScreenHomeState extends State<ScreenHome> {
       Position position = await _positionCurrent();
       lat = position.latitude;
       long = position.longitude;
+
+      StationController.lat = lat;
+      StationController.long = long;
       
       _mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(lat, long)));
     } catch (e) {
@@ -166,7 +191,6 @@ class _ScreenHomeState extends State<ScreenHome> {
   }
 
   void loadingStation () {
-    print("thjerhtrjek");
     final stations = StationRepository.list;
     stations.forEach((station) async { 
       markers.add(
@@ -197,7 +221,7 @@ class _ScreenHomeState extends State<ScreenHome> {
       );
     });
   }
-
+  late Future<LatLng> location;
   @override
   void initState(){
     
@@ -208,6 +232,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     getPosition();
     loadingStation ();
 
+    //StationController.getLocation();
   }
 
   @override
@@ -226,6 +251,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     }*/
 
     
+
     print(markers);
     return 
     Scaffold(
@@ -261,9 +287,9 @@ class _ScreenHomeState extends State<ScreenHome> {
               _mapsController = gController;
               getPosition();
               loadingStation();
-              setPolylines();
+              
             },
-            polylines: _polylines,
+            //polylines: _polylines,
             /*polylines: {
 
               Polyline(

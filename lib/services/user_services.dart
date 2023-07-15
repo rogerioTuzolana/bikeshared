@@ -28,15 +28,14 @@ class UserService {
     bool authStatus=false;
     late User userExist;
     final users = UserRepository.tabela;
-    users.forEach((user) { 
-      if (user.id == SharedPreferencesManager.sharedPreferences.getString('token')) {
+    for (var user in users) { 
+      if (user.id.toString() == SharedPreferencesManager.sharedPreferences.getString('token')) {
         authStatus = true;
         userExist = user;
-        print("Temmmmmmmmmmm");
-        return;
+        continue;
       }
-    });
-
+    }
+  
     if(authStatus==true){
 
       await SharedPreferencesManager.sharedPreferences.setString('token', "${userExist.id}");

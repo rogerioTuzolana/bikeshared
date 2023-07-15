@@ -3,7 +3,6 @@ import 'package:bikeshared/views/start.dart';
 import 'package:flutter/material.dart';
 
 import 'services/shared_preferences_manager.dart';
-import 'services/user_services.dart';
 //import 'package:flutter_config/flutter_config.dart';
 
 void main() async{

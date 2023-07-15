@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/components/station_details.dart';
@@ -26,7 +28,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
 
   //variavel que vai controlar o mapa
   late GoogleMapController _mapsController;
-  String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
+  String googleKey = "AIzaSyDFbFxPiczX2GO_iVLeTbzoBGSsw6ma938";//AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw
   
   double lat = 0.0;
   double long = 0.0;
@@ -45,22 +47,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
 
   //late PolylinePoints polylinePoints;
 
-  int polylineIdCount = 1;
-  
-  final Polyline _kPolyline = Polyline(
-    polylineId: PolylineId('kPolyline'),
-    points: [
-      
-      /*LatLng(-8.8643581, 13.2932776)
-      LatLng(-8.8905235, 13.2274002), 
-      LatLng(-8.8649484, 13.2939577)*/
-    ],
-    width: 2,
-    endCap: Cap.squareCap,
-    color: Colors.lightBlueAccent,
-  );
-
-  void setPolyPoints(LatLng origin, LatLng destination) async{
+  /*void setPolyPoints(LatLng origin, LatLng destination) async{
     //final String polylineIdVal = 'polyline_$polylineIdCount';
     
     _polylines.add(
@@ -70,20 +57,40 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
           origin,//LatLng(-8.8645981, 13.2989975),
           destination//LatLng(-8.8643581, 13.2932776)
         ],
-        width: 5,
+        width: 3,
         endCap: Cap.roundCap,
         color: const Color.fromARGB(255, 35, 112, 148),
       )
     );
+  }*/
+
+  double degreesToRadians(double degrees) {
+    return degrees * pi / 180;
   }
 
-  /*void setPolylines() async{
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    double earthRadius = 6371; // em quilômetros
+
+    double dLat = degreesToRadians(lat2 - lat1);
+    double dLon = degreesToRadians(lon2 - lon1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(degreesToRadians(lat1)) * cos(degreesToRadians(lat2)) *
+        sin(dLon / 2) * sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    double distance = earthRadius * c;
+    return distance;
+  }
+
+  void setPolylines() async{
     print("Antes");
     
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleKey, 
-      PointLatLng(sourceLocation.latitude, sourceLocation.longitude), 
-      PointLatLng(destination.latitude, destination.longitude));
+      PointLatLng(widget.sourceLocation.latitude, widget.sourceLocation.longitude), 
+      PointLatLng(widget.destination.latitude, widget.destination.longitude));
       print("Depois");
       print(result.status);
       print(result.points);
@@ -99,7 +106,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
         setState(() {
           _polylines.add(
             Polyline(
-            width: 10,
+            width: 3,
             polylineId: PolylineId('polyLine'),
             color: Color.fromARGB(255, 9, 67, 82),
             points: polylineCoordinates)
@@ -108,7 +115,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
         
       
       }
-  }*/
+  }
 
   Future<Position>_positionCurrent() async{
     bool serviceEnabled;
@@ -184,15 +191,19 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
     
     super.initState();
 
+    polylinePoints = PolylinePoints();
     sourceLocation2 = widget.sourceLocation;
     destination2 = widget.destination;
-    //polylinePoints = PolylinePoints();
 
-    setPolyPoints(sourceLocation2, destination2);
 
     getPosition();
     loadingStation();
 
+    double distance = calculateDistance(widget.sourceLocation.latitude, widget.sourceLocation.longitude,
+     widget.destination.latitude, widget.destination.longitude);
+
+     double roundedDistance = double.parse(distance.toStringAsFixed(2));
+    print("Distancia entre pontos $roundedDistance");
   }
 
   @override
@@ -244,8 +255,8 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
               _mapsController = gController;
               getPosition();
               loadingStation();
-              //setPolylines();
-              setPolyPoints(sourceLocation2, destination2);
+              setPolylines();
+              //setPolyPoints(sourceLocation2, destination2);
             },
             polylines: _polylines,
             /*polylines: {

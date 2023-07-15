@@ -7,16 +7,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class StationController extends ChangeNotifier{
-  double lat = 0.0;
-  double long = 0.0;
+  static double lat = 0.0;
+  static double long = 0.0;
   String error = '';
   //Marcadores de estacoes
-  static Set<Marker> markers = Set<Marker>();
+  static Set<Marker> markers = <Marker>{};
   //variavel que vai controlar o mapa
   late GoogleMapController _mapsController;
 String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
   
-  Set<Polyline> _polylines = Set<Polyline>();
+  final Set<Polyline> _polylines = <Polyline>{};
   List<LatLng> polylineCoordinates = [];
   /*StationController(){
     getPosition();
@@ -46,7 +46,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
               context: appKey.currentState!.context, builder: (context)=> StationDetails(station: station),
               backgroundColor: const Color.fromARGB(255, 2, 130, 250),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              anchorPoint: Offset(4, 5),
+              anchorPoint: const Offset(4, 5),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
@@ -66,10 +66,10 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleKey, 
-      PointLatLng(-8.8905235, 13.2274002), 
-      PointLatLng(-8.8649484, 13.2939577));
+      const PointLatLng(-8.8905235, 13.2274002), 
+      const PointLatLng(-8.8649484, 13.2939577));
 
-      if (result == "OK") {
+      if (result.points.isEmpty) {
         result.points.forEach((point) {
           polylineCoordinates.add(
             LatLng(point.latitude, point.longitude)
@@ -78,8 +78,8 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
 
         _polylines.add(Polyline(
           width: 10,
-          polylineId: PolylineId('polyLine'),
-          color: Color(0xFF08A5CB),
+          polylineId: const PolylineId('polyLine'),
+          color: const Color(0xFF08A5CB),
           points: polylineCoordinates));
       
       }
@@ -98,8 +98,22 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     notifyListeners();
   }
 
+  static getLocation() async{
+    try {
+      Position position = await _positionCurrent();
+      lat = position.latitude;
+      long = position.longitude;
+      
+      //_mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(lat, long)));
+      return LatLng(lat, long);
+    } catch (e) {
+      //error = e.toString();
+      return const LatLng(-1,-1);
+    }
+    
+  }
 
-  Future<Position>_positionCurrent() async{
+  static Future<Position>_positionCurrent() async{
     bool serviceEnabled;
     LocationPermission permission;
 
