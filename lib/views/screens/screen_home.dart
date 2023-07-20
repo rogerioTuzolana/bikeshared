@@ -90,6 +90,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     return degrees * pi / 180;
   }
 
+  //fórmula de Haversine
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     double earthRadius = 6371; // em quilômetros
 
@@ -331,7 +332,7 @@ class _ScreenHomeState extends State<ScreenHome> {
           Container(
             margin: const EdgeInsets.only(top: 16, right: 15),
             child: IconButton(
-              color: Colors.white,//Colors.black,
+              color: Colors.white,
               icon: const Icon(Icons.person),
               onPressed: (){},
             ),
@@ -341,8 +342,7 @@ class _ScreenHomeState extends State<ScreenHome> {
         ],
         foregroundColor: Colors.white,//Colors.black,
         backgroundColor: const Color.fromARGB(255, 0, 14, 27),//Color.fromARGB(255, 2, 130, 250),
-        //title: Text('Baika Seguro'),
-        //centerTitle: true,
+
       );
   }
 
