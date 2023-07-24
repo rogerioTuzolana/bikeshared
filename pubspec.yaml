@@ -46,7 +46,7 @@ dependencies:
   connectivity_plus: ^2.3.9
   pull_to_refresh: ^2.0.0
   lottie: ^1.4.2
-
+  chat_bubbles: ^1.4.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

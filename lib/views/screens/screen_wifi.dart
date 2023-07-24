@@ -258,10 +258,11 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     //_discover()
                   },
                 ),
-                Text(" "),
+                const Text(" "),
                 InkWell(
-                  child: Icon(Icons.not_interested_rounded),
-                  onTap: () async {
+                  onTap: _isConnected ? () async => await _disconnect() : null,
+                  child: Icon(Icons.not_interested_rounded,color: _isConnected?Colors.white:const Color.fromARGB(255, 134, 132, 132),),
+                  /*() async {
                     print("object");
 
                     if(_deviceAddress!=''){
@@ -270,7 +271,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                       ));*/
                     }
                     
-                  },
+                  },*/
                 ),
               ],
             ),
@@ -291,13 +292,13 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
               ),
       
               const Divider(),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Controller",
                   style: Theme.of(context).textTheme.headline5,
                 ),
-              ),
+              ),*/
 
               Column(
                 children: [
@@ -320,8 +321,8 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                           Text("Procurar despositivos"),
                         ],
                       ),
-                      onPressed: (){ 
-                        
+                      onPressed: () async { 
+                        if (!_isConnected) await FlutterP2pPlus.discoverDevices();
                       },
                       
                     ),
@@ -342,6 +343,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                         //padding: EdgeInsets.all(24)
                         
                       ),
+                      onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
                       
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -350,9 +352,6 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                           Text("Abrir a porta de conexão"),
                         ],
                       ),
-                      onPressed: (){ 
-                        
-                      },
                       
                     ),
                   ),
@@ -372,7 +371,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                         //padding: EdgeInsets.all(24)
                         
                       ),
-                      
+                      onPressed: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
@@ -380,44 +379,73 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                           Text("Conectar para porta"),
                         ],
                       ),
-                      onPressed: (){ 
-                        
-                      },
                       
                     ),
                   ),
                 ],
               ),
-              ListTile(
+              /*ListTile(
                 title: const Text("Discover Devices"),
                 onTap: () async {
                   if (!_isConnected) await FlutterP2pPlus.discoverDevices();
                   else return;
                 },
               ),
-              Divider(),
-              ListTile(
+              Divider(),*/
+              /*ListTile(
                 title: const Text("Open and accept data from port 8888"),
                 subtitle: _isConnected ? Text("Active") : Text("Disable"),
                 onTap: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
               ),
-              Divider(),
-              ListTile(
+              Divider(),*/
+              /*ListTile(
                 title: const Text("Connect to port 8888"),
                 subtitle: const Text("This is able to only Client"),
                 onTap: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
               ),
-              Divider(),
-              ListTile(
+              Divider(),*/
+              const Text(" "),
+              Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width*0.8,
+                    height: 40.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        //shape: const CircleBorder(),
+                        primary: const Color.fromARGB(255, 49, 154, 196),
+                        shadowColor: const Color.fromARGB(255, 94, 141, 155),
+                        //padding: EdgeInsets.all(24)
+                        
+                      ),
+                      onPressed:  /*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
+                      (){
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => ScreenChat(),
+                        ));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.message_rounded, size: 25,),
+                          Text("Chat"),
+                        ],
+                      ),
+                      
+                    ),
+                  ),
+                ],
+              ),
+              /*ListTile(
                 title: const Text("Enviar hello world"),
                 onTap: _isConnected ? () async => await _socket.writeString("Hello World") : null,
               ),
-              Divider(),
-              ListTile(
+              Divider(),*/
+              /*ListTile(
                 title: const Text("Desconectar"),
                 onTap: _isConnected ? () async => await _disconnect() : null,
               ),
-              Divider(),
+              Divider(),*/
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/components/station_details.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
@@ -5,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 
 class StationController extends ChangeNotifier{
   static double lat = 0.0;
@@ -134,5 +139,160 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
       return Future.error('Acesso a localização com permissão negado para sempre, Você precisa autorizar o acesso.');     
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  static Future<bool> testPing() async{
+    //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    const xmlBody = '''
+      
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://ws.bikeshareds.org/">
+        <soap:Header/>
+        <soap:Body>
+          <wsdl:test_ping>
+          <input_message>OLA</input_message>
+          </wsdl:test_ping>
+          <!-- Adicione mais elementos aqui, conforme necessário, para enviar os parâmetros -->
+        </soap:Body>
+      </soap:Envelope>
+    ''';
+    try {
+      
+      final url = Uri.parse("http://192.168.0.107:8989/cliente?wsdl");
+
+      http.Response response = await http.post(
+        url,
+        /*headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            /*HttpHeaders.authorizationHeader: "...",*/
+        },*/
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+        body: xmlBody
+      );
+      if (response.statusCode == 200) {
+        //await sharedPreference.setString('token', "${jsonDecode(response.body)['token']}");
+        //print(jsonDecode(response.body)['token']);
+        print('Deu certo');
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+        //document.findAllElements('wsdl:test_ping');
+        print(document.findAllElements('return').first.text);
+        return true;
+      }else if(response.statusCode == 503){
+        print('Servidor indisponível');
+        print(response.body);
+        return false;
+      }else if(response.statusCode == 500){
+        print('Falha na requisição');
+        print(response.body);
+        return false;
+      }else{
+        print('Erro na autenticação');
+        print(response.body);
+        return false;
+      }
+    } catch (e) {
+      //print('Tempo de execução demorada!');
+      //print(e);
+      print(e.toString());
+      return false;
+      //rethrow;
+    }
+  }
+
+  static Future<bool> listStations() async{
+    //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    const xmlBody = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ws:listStations>
+            <numberOfStations>3</numberOfStations>
+            <coordinates>
+              <x>2</x>
+              <y>2</y>
+            </coordinates>
+          </ws:listStations>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
+    try {
+      
+      final url = Uri.parse("http://192.168.0.107:8989/cliente?wsdl");
+
+      http.Response response = await http.post(
+        url,
+        /*headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            /*HttpHeaders.authorizationHeader: "...",*/
+        },*/
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+        body: xmlBody
+      );
+      if (response.statusCode == 200) {
+        //await sharedPreference.setString('token', "${jsonDecode(response.body)['token']}");
+        //print(jsonDecode(response.body)['token']);
+        print('Deu certo');
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+        final x = document.findAllElements('stations');
+        /*x.map((e) {
+          print(e.findAllElements("coordinate").first.text);
+        },);*/
+        print(x);
+        for (var stationElement in x) {
+          final id = stationElement.findElements('id');
+          final coordinates = stationElement.findAllElements('coordinate');
+          print('coordinates: $coordinates');
+          /*for (var coordinate in coordinates) {
+            final x = stationElement.findElements('x');
+            final y = stationElement.findElements('y');
+            
+            print('X: $x');
+            print('Y: $y');
+          }*/
+          
+          final capacity = stationElement.findElements('capacity');
+          final totalGets = stationElement.findElements('totalGets');
+          final totalReturns = stationElement.findElements('totalReturns');
+          final availableBikeShared = stationElement.findElements('availableBikeShared');
+          final freeDocks = stationElement.findElements('freeDocks');
+
+          print('ID: $id');
+          print('Capacity: $capacity');
+          print('Total Gets: $totalGets');
+          print('Total Returns: $totalReturns');
+          print('Available Bike Shared: $availableBikeShared');
+          print('Free Docks: $freeDocks');
+          print('-----------------------');
+        }
+
+        
+        return true;
+      }else if(response.statusCode == 503){
+        print('Servidor indisponível');
+        print(response.body);
+        return false;
+      }else if(response.statusCode == 500){
+        print('Falha na requisição');
+        print(response.body);
+        return false;
+      }else{
+        print('Erro na autenticação');
+        print(response.body);
+        return false;
+      }
+    } catch (e) {
+      //print('Tempo de execução demorada!');
+      //print(e);
+      print(e.toString());
+      return false;
+      //rethrow;
+    }
   }
 }

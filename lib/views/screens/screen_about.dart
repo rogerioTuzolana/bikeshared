@@ -1,6 +1,7 @@
 
 //import 'dart:convert';
 
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
@@ -56,12 +57,31 @@ class _ScreenAboutState extends State<ScreenAbout> {
             width: size.width,
             height: size.height,
             child: SingleChildScrollView(
-              child: Column(children: const [
+              child: Column(children: [
                 
-                Center(child: Text("Info"),)
-                  
-              ],)
-            ,),
+                const Center(child: Text("Info"),),
+
+                SizedBox(
+                  width: size.width*0.8,
+                  height: 40.0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      //shape: const CircleBorder(),
+                      primary: const Color.fromARGB(255, 0, 14, 27),
+                      shadowColor: const Color.fromARGB(255, 0, 0, 0),
+                      //padding: EdgeInsets.all(24)
+                      
+                    ),
+                    onPressed: () async{
+                      //await StationController.testPing();
+                      await StationController.listStations();
+                    },
+                    
+                    child: Text("Teste soap"),
+                  ),
+                ),
+              ])      
+            ),
           ),
         ]);
   }

@@ -4,7 +4,7 @@ import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/components/station_details.dart';
-import 'package:bikeshared/views/screens/about.dart';
+import 'package:bikeshared/views/screens/screen_about.dart';
 import 'package:bikeshared/views/screens/screen_locations.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
 import 'package:bikeshared/views/screens/ScreenSolicitations.dart';
