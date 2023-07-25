@@ -30,7 +30,7 @@ class _AuthInputPasswordState extends State<AuthInputPassword> {
           fillColor: Colors.white,
           filled: true,
           hintText: widget.hintText,
-          suffixIcon: Icon(Icons.password_outlined, color: Colors.blueGrey,),
+          suffixIcon: Icon(Icons.remove_red_eye_outlined, color: Colors.blueGrey,),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
           contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           focusedBorder: OutlineInputBorder(

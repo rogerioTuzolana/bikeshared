@@ -49,6 +49,9 @@ class _ScreenAboutState extends State<ScreenAbout> {
 
   buildBody(){
     Size size = MediaQuery.of(context).size;
+    double lat = StationController.lat;
+    double long = StationController.long;
+    print("Yesss $long");
     return 
         Stack(children: [
           
@@ -59,7 +62,7 @@ class _ScreenAboutState extends State<ScreenAbout> {
             child: SingleChildScrollView(
               child: Column(children: [
                 
-                const Center(child: Text("Info"),),
+                const Center(child: Text("Info "),),
 
                 SizedBox(
                   width: size.width*0.8,
@@ -74,7 +77,7 @@ class _ScreenAboutState extends State<ScreenAbout> {
                     ),
                     onPressed: () async{
                       //await StationController.testPing();
-                      await StationController.listStations();
+                      await StationController.listStations(/*lat, long*/);
                     },
                     
                     child: Text("Teste soap"),

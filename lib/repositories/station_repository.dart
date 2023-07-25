@@ -9,18 +9,30 @@ class StationRepository /*extends ChangeNotifier*/{
       address: 'Camama 1',
       lat: -8.8905235,
       long: 13.2274002,
+      capacity: 10,
+      freeDocks: 3,
+      totalGets: 0,
+      totalReturns: 0,
     ),
     Station(
       name: 'Espaço Lazer Nandex',//'Departamento de Física',
       address: 'Camama 1',
       lat: -8.8649484,
       long: 13.2939577,
+      capacity: 10,
+      freeDocks: 3,
+      totalGets: 0,
+      totalReturns: 0,
     ),
     Station(
       name: 'New CVS',//'Departamento de Química',
       address: 'Camama 1',
       lat: -8.7663581,
       long: 13.2482776,
+      capacity: 10,
+      freeDocks: 3,
+      totalGets: 0,
+      totalReturns: 0,
     ) 
   ];
 }

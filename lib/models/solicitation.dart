@@ -6,7 +6,6 @@ class Solicitation{
   double long;
 
   Solicitation({
-
     required this.id,
     required this.station,
     required this.address,

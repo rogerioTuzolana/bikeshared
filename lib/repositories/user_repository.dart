@@ -2,6 +2,7 @@ import 'package:bikeshared/models/user.dart';
 
 
 class UserRepository{
+  
   static List<User> tabela = [
     User(
       id: 1,

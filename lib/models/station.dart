@@ -3,6 +3,10 @@ class Station{
   String address;
   double lat;
   double long;
+  int capacity;
+  int freeDocks;
+  int totalGets;
+  int totalReturns;
 
   Station({
 
@@ -10,5 +14,9 @@ class Station{
     required this.address,
     required this.lat,
     required this.long,
+    required this.capacity,
+    required this.freeDocks,
+    required this.totalGets,
+    required this.totalReturns,
   });
 }

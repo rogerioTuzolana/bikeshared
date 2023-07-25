@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:bikeshared/controllers/UserController.dart';
+import 'package:bikeshared/models/user.dart';
 import 'package:bikeshared/views/components/auth_input.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 import 'package:bikeshared/views/components/auth_link_footer.dart';
@@ -17,6 +19,7 @@ class ScreenRegister extends StatefulWidget {
 
 class _ScreenRegisterState extends State<ScreenRegister> {
   final _id = TextEditingController();
+  final _name = TextEditingController();
   final _password = TextEditingController();
   final _formkey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -97,10 +100,11 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                 child: Column(
                   children: [
                     AuthInput(
-                      id: _id,
+                      id: _name,
                       hintText: 'Nome',
                       obscureText: false,
                       message: 'Informe o seu nome',
+                      icon: Icon(Icons.person),
                     ),
                     const SizedBox(
                       height: 20,
@@ -110,6 +114,7 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                       hintText: 'Email',
                       obscureText: false,
                       message: 'Informe o seu email',
+                      icon: Icon(Icons.email)
                     ),
                     const SizedBox(
                       height: 20,
@@ -141,52 +146,47 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                         child: isLoading?const CircularProgressIndicator(color: Colors.white,strokeWidth: 5.0,):const Text('Cadastrar',style: TextStyle(fontSize: 20,color: Colors.white),),
                         onPressed: () /*async*/{
                           
-                          /*Navigator.pushReplacement(
-                            context, 
-                            MaterialPageRoute(
-                            builder: (context) => const /*AccountLayout()*/ScreenHome(),
-                          ));
-                          setState(() {
-                            isLoading = true;
-                          });
-
-                          FocusScopeNode keyboardCurrentFocus = FocusScope.of(context);
                           if (_formkey.currentState!.validate()) {
-                            /*tirar comentario
-                            var success = await UserService.login(_id.text, _password.text);*/
-                            var success = false;
-                            //Fechar o teclado do login
-                            if (keyboardCurrentFocus.hasPrimaryFocus) {
-                              keyboardCurrentFocus.unfocus();
-                            } 
+                            UserController.activeUser(_id.text);
                             
-                            if (success) {
+                            //activeUser
+                            
+                            /*Navigator.pushReplacement(
+                              context, 
+                              MaterialPageRoute(
+                              builder: (context) => const ScreenHome(),
+                            ));*/
+                            
+                            //final user = UserRepository.tabela;
+                            /*limpa SharedPreferencesManager.init();
+                            SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
+                            
+                            users.forEach((user) { 
+                              if (user.email == _id.text && user.password == _password.text) {
+                                authStatus = true;
+                                userExist = user;
+                                print("Temmmmmmmmmmm");
+                                return;
+                              }
+                            });
+
+                            if(authStatus==true){
+
+                              await sharedPreference.setString('token', "${userExist.id}");
+                              await sharedPreference.setString('name', userExist.name);
+                              await sharedPreference.setString('email', userExist.email);
+                              await sharedPreference.setInt('point', 10);
+                              print("yas");
+
                               Navigator.pushReplacement(
                                 context, 
                                 MaterialPageRoute(
-                                builder: (context) => const AccountLayout(), //HomeUser()//Splash(),
+                                builder: (context) => const ScreenHome(),
                               ));
-                            }else{
-                              
-                              _password.clear();
-                              showModalBottomSheet(context: context, builder: (context)=>showMessageAuthError(context: context));
-                              
-                              /*ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('ID ou Senha inválida!', textAlign: TextAlign.center),
-                                  backgroundColor: Colors.redAccent,
-                                )
-                                
-                              );*/
-                            }
-
-                            Future.delayed(const Duration(seconds: 1),() {
-                              setState(() {
-                                isLoading = false;
-                              });
-                            });
+                            }fimlimpa*/
+                            
+                            
                           }
-                          */
                         },
                       
                     ),),

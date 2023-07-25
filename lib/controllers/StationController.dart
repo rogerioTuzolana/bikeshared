@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
@@ -157,7 +156,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     ''';
     try {
       
-      final url = Uri.parse("http://192.168.0.107:8989/cliente?wsdl");
+      final url = Uri.parse("http://192.168.0.118:8989/cliente?wsdl");
 
       http.Response response = await http.post(
         url,
@@ -204,15 +203,15 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
 
   static Future<bool> listStations() async{
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
-    const xmlBody = '''
+    final xmlBody = '''
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
         <soapenv:Header/>
         <soapenv:Body>
           <ws:listStations>
             <numberOfStations>3</numberOfStations>
             <coordinates>
-              <x>2</x>
-              <y>2</y>
+              <x>$lat</x>
+              <y>$long</y>
             </coordinates>
           </ws:listStations>
         </soapenv:Body>
@@ -220,7 +219,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     ''';
     try {
       
-      final url = Uri.parse("http://192.168.0.107:8989/cliente?wsdl");
+      final url = Uri.parse("http://192.168.0.118:8989/cliente?wsdl");
 
       http.Response response = await http.post(
         url,
@@ -245,23 +244,25 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
           print(e.findAllElements("coordinate").first.text);
         },);*/
         print(x);
+
         for (var stationElement in x) {
           final id = stationElement.findElements('id');
           final coordinates = stationElement.findAllElements('coordinate');
-          print('coordinates: $coordinates');
-          /*for (var coordinate in coordinates) {
-            final x = stationElement.findElements('x');
-            final y = stationElement.findElements('y');
-            
-            print('X: $x');
-            print('Y: $y');
-          }*/
           
-          final capacity = stationElement.findElements('capacity');
-          final totalGets = stationElement.findElements('totalGets');
-          final totalReturns = stationElement.findElements('totalReturns');
-          final availableBikeShared = stationElement.findElements('availableBikeShared');
-          final freeDocks = stationElement.findElements('freeDocks');
+          for (var coordinate in coordinates) {
+            final lat = coordinate.findElements('lat').first.text;
+            final long = coordinate.findElements('y').first.text;
+            print('x: $lat');
+            print('y: $long');
+          }
+          //print('coordinates: $coordinates');
+          
+          
+          final int capacity = int.parse(stationElement.findElements('capacity').first.text);
+          final totalGets = int.parse(stationElement.findElements('totalGets').first.text);
+          final totalReturns = int.parse(stationElement.findElements('totalReturns').first.text);
+          final availableBikeShared = int.parse(stationElement.findElements('availableBikeShared').first.text);
+          final freeDocks = int.parse(stationElement.findElements('freeDocks').first.text);
 
           print('ID: $id');
           print('Capacity: $capacity');
@@ -270,9 +271,23 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
           print('Available Bike Shared: $availableBikeShared');
           print('Free Docks: $freeDocks');
           print('-----------------------');
+
+          StationRepository.list.add(
+            Station(
+              name: "Station", 
+              address: "Camama",
+              lat: lat, 
+              long: long,
+              capacity: capacity, 
+              freeDocks: freeDocks, 
+              totalGets: totalGets, 
+              totalReturns: totalReturns
+            )
+          );
         }
 
-        
+        //print(StationRepository.list);
+
         return true;
       }else if(response.statusCode == 503){
         print('Servidor indisponível');
@@ -295,4 +310,6 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
       //rethrow;
     }
   }
+
+  
 }

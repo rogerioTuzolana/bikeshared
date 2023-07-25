@@ -1,4 +1,5 @@
 
+import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/models/user.dart';
 import 'package:bikeshared/repositories/user_repository.dart';
 import 'package:bikeshared/services/shared_preferences_manager.dart';
@@ -160,8 +161,17 @@ class _ScreenLoginState extends State<ScreenLogin> {
                           final users = UserRepository.tabela;
                           print(users[0].email);
                           if (_formkey.currentState!.validate()) {
+                            UserController.activeUser(_id.text);
+                            //activeUser
+                            
+                            /*Navigator.pushReplacement(
+                              context, 
+                              MaterialPageRoute(
+                              builder: (context) => const ScreenHome(),
+                            ));*/
+                            
                             //final user = UserRepository.tabela;
-                            SharedPreferencesManager.init();
+                            /*limpa SharedPreferencesManager.init();
                             SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
                             
                             users.forEach((user) { 
@@ -186,7 +196,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                                 MaterialPageRoute(
                                 builder: (context) => const ScreenHome(),
                               ));
-                            }
+                            }fimlimpa*/
                             
                             
                           }

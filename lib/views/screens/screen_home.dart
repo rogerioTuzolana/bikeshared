@@ -173,6 +173,7 @@ class _ScreenHomeState extends State<ScreenHome> {
       lat = position.latitude;
       long = position.longitude;
 
+
       StationController.lat = lat;
       StationController.long = long;
       

@@ -4,7 +4,8 @@
 import 'package:bikeshared/models/solicitation.dart';
 
 class SolicitationRepository /*extends ChangeNotifier*/{
-    static final List<Solicitation> list = [
+  static final List<Solicitation> list = [];
+    static final List<Solicitation> list1 = [
     Solicitation(
       id: 1,
       station: 'Departamento da Computação',

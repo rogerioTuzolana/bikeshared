@@ -5,12 +5,14 @@ class AuthInput extends StatefulWidget {
   final bool obscureText;
   final String hintText;
   final String message;
+  final Icon icon;
   const AuthInput({
     super.key,
     required this.id,
     required this.hintText,
     required this.message,
-    required this.obscureText
+    required this.obscureText,
+    required this.icon
   });
 
   @override
@@ -30,7 +32,7 @@ class _AuthInputState extends State<AuthInput> {
           fillColor: Colors.white,
           filled: true,
           hintText: widget.hintText,
-          prefixIcon: Icon(Icons.email),
+          prefixIcon: widget.icon,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
           contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           focusedBorder: OutlineInputBorder(
