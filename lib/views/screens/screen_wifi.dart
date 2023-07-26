@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bikeshared/repositories/socket.dart';
 import 'package:bikeshared/views/screens/screen_chat.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   List<StreamSubscription> _subscriptions = [];
   List<WifiP2pDevice> _peers = [];
   //conexao socket
-   late P2pSocket _socket;
+  late P2pSocket _socket;
   //Conexão wifi direct
   bool _isConnected = false;
   bool _isHost = false;
@@ -174,6 +175,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
       var socket = await FlutterP2pPlus.openHostPort(port);
       setState(() {
         _socket = socket!;
+        SocketRepo.socket = _socket;
       });
 
       var buffer = "";
@@ -203,6 +205,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
 
     setState(() {
       _socket = socket!;
+      SocketRepo.socket = _socket;
     });
 
     _socket.inputStream.listen((data) {
@@ -419,8 +422,23 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                         
                       ),
                       onPressed:  /*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
-                      (){
+                      ()async{
+                        /*showModalBottomSheet(
+                          context: context, builder: (context)=> ScreenChat(),
+                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          anchorPoint: Offset(4, 5),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
+                              //bottomRight: Radius.circular(30),
+                              //bottomLeft: Radius.circular(30),
+                            ),
+                          ),
+                        );*/
                         Navigator.push(context, MaterialPageRoute(
+                          
                           builder: (context) => ScreenChat(),
                         ));
                       },

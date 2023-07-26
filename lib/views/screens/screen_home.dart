@@ -8,6 +8,7 @@ import 'package:bikeshared/views/screens/screen_about.dart';
 import 'package:bikeshared/views/screens/screen_locations.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
 import 'package:bikeshared/views/screens/ScreenSolicitations.dart';
+import 'package:bikeshared/views/screens/screen_profile.dart';
 import 'package:bikeshared/views/screens/screen_wifi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -335,7 +336,11 @@ class _ScreenHomeState extends State<ScreenHome> {
             child: IconButton(
               color: Colors.white,
               icon: const Icon(Icons.person),
-              onPressed: (){},
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ScreenProfile(),
+                ));
+              },
             ),
             
           ),

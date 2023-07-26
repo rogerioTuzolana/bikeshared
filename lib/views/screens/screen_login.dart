@@ -161,17 +161,17 @@ class _ScreenLoginState extends State<ScreenLogin> {
                           final users = UserRepository.tabela;
                           print(users[0].email);
                           if (_formkey.currentState!.validate()) {
-                            UserController.activeUser(_id.text);
+                            /*UserController.activeUser(_id.text);
                             //activeUser
                             
-                            /*Navigator.pushReplacement(
+                            Navigator.pushReplacement(
                               context, 
                               MaterialPageRoute(
                               builder: (context) => const ScreenHome(),
                             ));*/
                             
-                            //final user = UserRepository.tabela;
-                            /*limpa SharedPreferencesManager.init();
+                            final user = UserRepository.tabela;
+                            SharedPreferencesManager.init();
                             SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
                             
                             users.forEach((user) { 
@@ -196,7 +196,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                                 MaterialPageRoute(
                                 builder: (context) => const ScreenHome(),
                               ));
-                            }fimlimpa*/
+                            }
                             
                             
                           }

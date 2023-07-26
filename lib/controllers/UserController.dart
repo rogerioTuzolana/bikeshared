@@ -1,5 +1,8 @@
+import 'package:bikeshared/env.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 class UserController extends ChangeNotifier{
 
@@ -18,7 +21,7 @@ class UserController extends ChangeNotifier{
     ''';
     try {
       
-      final url = Uri.parse("http://192.168.0.118:8989/cliente?wsdl");
+      final url = Uri.parse(Env.url);
 
       http.Response response = await http.post(
         url,
@@ -38,11 +41,23 @@ class UserController extends ChangeNotifier{
         print('Deu certo');
         final xmlString = response.body;
         final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
-        final x = document.findAllElements('stations');
-        /*x.map((e) {
-          print(e.findAllElements("coordinate").first.text);
-        },);*/
-        print(document);
+        final user = document.findAllElements('user').first;
+        final email = user.findElements('email');
+        final hasBikeShared = user.findElements('hasBikeShared');
+        final credit = user.findElements('credit');
+        print(email.first.text);
+        print(hasBikeShared.first.text);
+        print(credit.first.text);
+        print(user);
+
+        //SharedPreferencesManager.init();
+        SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
+        //await sharedPreference.setString('token', "${userExist.id}");
+        await sharedPreference.setString('name', "none");
+        await sharedPreference.setString('email', email.first.text);
+        await sharedPreference.setBool('hasBikeShared', bool.fromEnvironment(hasBikeShared.first.text));
+        await sharedPreference.setInt('credit', int.parse(credit.first.text));
+        
 
         //User(id: id, name: name, email: email, password: password)
         /*for (var stationElement in x) {
@@ -95,4 +110,6 @@ class UserController extends ChangeNotifier{
       //rethrow;
     }
   }
+
+  
 }

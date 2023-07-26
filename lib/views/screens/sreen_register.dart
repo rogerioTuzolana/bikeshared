@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/models/user.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/auth_input.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 import 'package:bikeshared/views/components/auth_link_footer.dart';
@@ -9,6 +10,7 @@ import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScreenRegister extends StatefulWidget {
   const ScreenRegister({super.key});
@@ -144,18 +146,22 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                           ),
                         ),
                         child: isLoading?const CircularProgressIndicator(color: Colors.white,strokeWidth: 5.0,):const Text('Cadastrar',style: TextStyle(fontSize: 20,color: Colors.white),),
-                        onPressed: () /*async*/{
+                        onPressed: () /*async*/async {
                           
                           if (_formkey.currentState!.validate()) {
-                            UserController.activeUser(_id.text);
+                            bool status = await UserController.activeUser(_id.text);
+                            if (status == false) {
+
+                              showModal('Este email já existe!');
+                            }else{
+
+                              Navigator.pushReplacement(
+                                context, 
+                                MaterialPageRoute(
+                                builder: (context) => const ScreenHome(),
+                              ));
+                            }
                             
-                            //activeUser
-                            
-                            /*Navigator.pushReplacement(
-                              context, 
-                              MaterialPageRoute(
-                              builder: (context) => const ScreenHome(),
-                            ));*/
                             
                             //final user = UserRepository.tabela;
                             /*limpa SharedPreferencesManager.init();
@@ -204,6 +210,25 @@ class _ScreenRegisterState extends State<ScreenRegister> {
     );
   }
 
+  showModal(message){
+    return showModalBottomSheet(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      context: context, 
+      builder: (context)=>SizedBox(
+        height: MediaQuery.of(context).size.height * 0.1,
+        child: Center(child: Text(message)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      anchorPoint: const Offset(4, 5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30)
+        ),
+      ),
+    );
+  }
+  
   Widget link() {
     return Container(
       alignment: Alignment.center,

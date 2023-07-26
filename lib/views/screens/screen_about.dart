@@ -4,6 +4,7 @@
 import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +53,7 @@ class _ScreenAboutState extends State<ScreenAbout> {
     double lat = StationController.lat;
     double long = StationController.long;
     print("Yesss $long");
+    print(SharedPreferencesManager.sharedPreferences.getString("email"));
     return 
         Stack(children: [
           

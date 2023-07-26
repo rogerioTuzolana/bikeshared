@@ -1,22 +1,24 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
 class MessageController extends ChangeNotifier{
   
-  List<String> messages = [
-    'Ola',
-    'Oi',
-    'Tudo bem'
+  List<List<String>> messages = [
+    /*['Ola',"0"],
+    ['Oi',"1"],
+    ['Tudo bem',"0"],
+    ['Tudo',"1"]*/
   ];
 
+  late P2pSocket socket;
   
-  setMessage(message) async{
+  setMessage(message, level) async{
     
-    messages.add(message);
+    messages.add([message,level]);
 
     notifyListeners();
   }
