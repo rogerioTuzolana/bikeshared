@@ -1,4 +1,5 @@
 class Station{
+  String stationId;
   String name;
   String address;
   double lat;
@@ -7,9 +8,11 @@ class Station{
   int freeDocks;
   int totalGets;
   int totalReturns;
+  int availableBikeShared;
+
 
   Station({
-
+    required this.stationId,
     required this.name,
     required this.address,
     required this.lat,
@@ -18,5 +21,6 @@ class Station{
     required this.freeDocks,
     required this.totalGets,
     required this.totalReturns,
+    required this.availableBikeShared,
   });
 }

@@ -1,3 +1,4 @@
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,13 @@ class ScreenProfile extends StatelessWidget {
   final int? saldo = SharedPreferencesManager.sharedPreferences.getInt("credit");
   final bool? hasBikeShared = SharedPreferencesManager.sharedPreferences.getBool("hasBikeShared");
 
+  @override
+  void initState(){
+    
+    StationController.getCredit(email);
+
+    //StationController.getLocation();
+  }
   @override
   Widget build(BuildContext context) {
     

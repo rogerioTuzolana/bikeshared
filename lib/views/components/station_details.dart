@@ -1,4 +1,6 @@
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/station.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:flutter/material.dart';
 
 class StationDetails extends StatelessWidget {
@@ -8,6 +10,7 @@ class StationDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    bool? hasBikeShared = SharedPreferencesManager.sharedPreferences.getBool("hasBikeShared");
     return Container(
       width: double.infinity,
       height: size.height * 0.40,
@@ -60,7 +63,7 @@ class StationDetails extends StatelessWidget {
               children: [
                 
                 Text(
-                  '3 Bicicletas / 10 Docas',
+                  '${station.availableBikeShared} Bicicletas / ${station.capacity} Docas',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                 )
@@ -81,14 +84,33 @@ class StationDetails extends StatelessWidget {
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,  
-              children: const [
+              children: [
+                hasBikeShared == false?
                 Text(
                   "Solicitar", 
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ):
+                Text(
+                  "Devolver", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 )
               ],
             ),
             onPressed: () async{
+              String? email = SharedPreferencesManager.sharedPreferences.getString("email");
+              
+              if(hasBikeShared == false){
+                bool? status = await StationController.solicitation(station.stationId, email);
+
+                if(status){
+                  showModal('Bina alugada com sucesso!', context);
+                }else{
+                  showModal('Erro! Algo de errado aconteceu', context);
+                }
+              }else{
+
+              }
+              
               /*SharedPreferences sharedPreference = await SharedPreferences.getInstance();
               await sharedPreference.clear();
               Navigator.of(context).pop();
@@ -102,5 +124,27 @@ class StationDetails extends StatelessWidget {
         ],
       ),
     );
+
+    
   }
+
+  showModal(message, context){
+    return showModalBottomSheet(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      context: context, 
+      builder: (context)=>SizedBox(
+        height: MediaQuery.of(context).size.height * 0.1,
+        child: Center(child: Text(message)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      anchorPoint: const Offset(4, 5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30)
+        ),
+      ),
+    );
+  }
+  
 }

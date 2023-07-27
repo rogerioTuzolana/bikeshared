@@ -177,6 +177,8 @@ class _ScreenHomeState extends State<ScreenHome> {
 
       StationController.lat = lat;
       StationController.long = long;
+
+      await StationController.listStations();
       
       _mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(lat, long)));
     } catch (e) {
@@ -254,7 +256,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     }*/
 
     
-
+    //print(StationRepository.list[0].name);
     print(markers);
     return 
     Scaffold(

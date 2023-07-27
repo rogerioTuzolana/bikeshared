@@ -1,6 +1,8 @@
 
+import 'package:bikeshared/env.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/station_details.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 
 class StationController extends ChangeNotifier{
@@ -156,7 +159,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     ''';
     try {
       
-      final url = Uri.parse("http://192.168.0.118:8989/cliente?wsdl");
+      final url = Uri.parse(Env.url);
 
       http.Response response = await http.post(
         url,
@@ -219,7 +222,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     ''';
     try {
       
-      final url = Uri.parse("http://192.168.0.118:8989/cliente?wsdl");
+      final url = Uri.parse(Env.url);
 
       http.Response response = await http.post(
         url,
@@ -244,17 +247,25 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
           print(e.findAllElements("coordinate").first.text);
         },);*/
         print(x);
-
+        
+        StationRepository.list =[];
         for (var stationElement in x) {
-          final id = stationElement.findElements('id');
-          final coordinates = stationElement.findAllElements('coordinate');
-          
-          for (var coordinate in coordinates) {
-            final lat = coordinate.findElements('lat').first.text;
-            final long = coordinate.findElements('y').first.text;
-            print('x: $lat');
-            print('y: $long');
-          }
+
+          print("passou");
+          final id = stationElement.findElements('id').first.text;
+          final coordinate = stationElement.findAllElements('coordinate').single;
+
+          final double lat2 = double.parse(coordinate.findElements('x').first.text);
+          final double long2 = double.parse(coordinate.findElements('y').first.text);
+          print('x: $lat2');
+          print('y: $long2');
+          /*for (var coordinate in coordinates) {
+            print("passou 2");
+            final double lat2 = double.parse(coordinate.findElements('lat').first.text);
+            final double long2 = double.parse(coordinate.findElements('y').first.text);
+            print('x: $lat2');
+            print('y: $long2');
+          }*/
           //print('coordinates: $coordinates');
           
           
@@ -272,8 +283,10 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
           print('Free Docks: $freeDocks');
           print('-----------------------');
 
+
           StationRepository.list.add(
             Station(
+              stationId: id, 
               name: "Station", 
               address: "Camama",
               lat: lat, 
@@ -281,9 +294,11 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
               capacity: capacity, 
               freeDocks: freeDocks, 
               totalGets: totalGets, 
-              totalReturns: totalReturns
+              totalReturns: totalReturns,
+              availableBikeShared: availableBikeShared
             )
           );
+
         }
 
         //print(StationRepository.list);
@@ -311,5 +326,127 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     }
   }
 
-  
+  static Future<bool> solicitation(stationId,email) async{
+    //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    print(stationId);
+    final xmlBody = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <ws:rentBikeShared>
+              <stationId>$stationId</stationId>
+              <email>$email</email>
+            </ws:rentBikeShared>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
+    try {
+      
+      final url = Uri.parse(Env.url);
+
+      http.Response response = await http.post(
+        url,
+        /*headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            /*HttpHeaders.authorizationHeader: "...",*/
+        },*/
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+        body: xmlBody
+      );
+      if (response.statusCode == 200) {
+        //await sharedPreference.setString('token', "${jsonDecode(response.body)['token']}");
+        //print(jsonDecode(response.body)['token']);
+        print('Deu certo');
+        
+        await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
+        return true;
+      }else if(response.statusCode == 503){
+        print('Servidor indisponível');
+        print(response.body);
+        return false;
+      }else if(response.statusCode == 500){
+        print('Falha na requisição');
+        print(response.body);
+        return false;
+      }else{
+        print('Erro na autenticação');
+        print(response.body);
+        return false;
+      }
+    } catch (e) {
+      //print('Tempo de execução demorada!');
+      //print(e);
+      print(e.toString());
+      return false;
+      //rethrow;
+    }
+  }
+
+  static Future<bool> getCredit(email) async{
+    //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    
+    final xmlBody = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <ws:getCredit>
+              <email>$email</email>
+            </ws:getCredit>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
+    try {
+      
+      final url = Uri.parse(Env.url);
+
+      http.Response response = await http.post(
+        url,
+        /*headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            /*HttpHeaders.authorizationHeader: "...",*/
+        },*/
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+        body: xmlBody
+      );
+      if (response.statusCode == 200) {
+        //await sharedPreference.setString('token', "${jsonDecode(response.body)['token']}");
+        //print(jsonDecode(response.body)['token']);
+
+        print('Deu certo');
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+        final int credit = int.parse(document.findAllElements('getCredit').first.text);
+        /*x.map((e) {
+          print(e.findAllElements("coordinate").first.text);
+        },);*/
+        print(credit);
+        await SharedPreferencesManager.sharedPreferences.setInt("credit",credit);
+        return true;
+      }else if(response.statusCode == 503){
+        print('Servidor indisponível');
+        print(response.body);
+        return false;
+      }else if(response.statusCode == 500){
+        print('Falha na requisição');
+        print(response.body);
+        return false;
+      }else{
+        print('Erro na autenticação');
+        print(response.body);
+        return false;
+      }
+    } catch (e) {
+      //print('Tempo de execução demorada!');
+      //print(e);
+      print(e.toString());
+      return false;
+      //rethrow;
+    }
+  }
 }

@@ -58,36 +58,6 @@ class UserController extends ChangeNotifier{
         await sharedPreference.setBool('hasBikeShared', bool.fromEnvironment(hasBikeShared.first.text));
         await sharedPreference.setInt('credit', int.parse(credit.first.text));
         
-
-        //User(id: id, name: name, email: email, password: password)
-        /*for (var stationElement in x) {
-          final id = stationElement.findElements('id');
-          final coordinates = stationElement.findAllElements('coordinate');
-          print('coordinates: $coordinates');
-          /*for (var coordinate in coordinates) {
-            final x = stationElement.findElements('x');
-            final y = stationElement.findElements('y');
-            
-            print('X: $x');
-            print('Y: $y');
-          }*/
-          
-          final capacity = stationElement.findElements('capacity');
-          final totalGets = stationElement.findElements('totalGets');
-          final totalReturns = stationElement.findElements('totalReturns');
-          final availableBikeShared = stationElement.findElements('availableBikeShared');
-          final freeDocks = stationElement.findElements('freeDocks');
-
-          print('ID: $id');
-          print('Capacity: $capacity');
-          print('Total Gets: $totalGets');
-          print('Total Returns: $totalReturns');
-          print('Available Bike Shared: $availableBikeShared');
-          print('Free Docks: $freeDocks');
-          print('-----------------------');
-        }
-
-        */
         return true;
       }else if(response.statusCode == 503){
         print('Servidor indisponível');

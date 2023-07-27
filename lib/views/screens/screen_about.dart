@@ -79,7 +79,7 @@ class _ScreenAboutState extends State<ScreenAbout> {
                     ),
                     onPressed: () async{
                       //await StationController.testPing();
-                      await StationController.listStations(/*lat, long*/);
+                      await StationController.getCredit("rogerio33@gmail.com");
                     },
                     
                     child: Text("Teste soap"),
