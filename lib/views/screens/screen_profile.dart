@@ -57,6 +57,8 @@ class ScreenProfile extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
+
+            
             (hasBikeShared==false)?
             Text(
               "Nenhuma",

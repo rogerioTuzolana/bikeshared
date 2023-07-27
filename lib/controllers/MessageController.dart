@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
 class MessageController extends ChangeNotifier{
-  
+  late P2pSocket socket;
   List<List<String>> messages = [
     /*['Ola',"0"],
     ['Oi',"1"],
@@ -14,7 +14,7 @@ class MessageController extends ChangeNotifier{
     ['Tudo',"1"]*/
   ];
 
-  late P2pSocket socket;
+  
   
   setMessage(message, level) async{
     

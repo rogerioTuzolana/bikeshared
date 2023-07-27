@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bikeshared/controllers/MessageController.dart';
 import 'package:bikeshared/repositories/socket.dart';
 import 'package:bikeshared/views/screens/screen_chat.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 import 'package:flutter_p2p_plus/protos/protos.pb.dart';
+import 'package:provider/provider.dart';
 //import 'package:flutter_p2p_plus/protos/protos.pbserver.dart';
 
 class ScreenWifi extends StatefulWidget {
@@ -171,6 +173,8 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   }
 
   void _openPortAndAccept(int port) async {
+    MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
+    
     if(!_isOpen){
       var socket = await FlutterP2pPlus.openHostPort(port);
       setState(() {
@@ -182,6 +186,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
       socket!.inputStream.listen((data) {
         var msg = String.fromCharCodes(data.data);
         buffer += msg;
+        messageProvider.messages.add([buffer, "1"]);
         if (data.dataAvailable == 0) {
           print("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
           snackBar("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
@@ -197,6 +202,8 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   }
 
   _connectToPort(int port) async {
+    MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
+    
     var socket = await FlutterP2pPlus.connectToHost(
       _deviceAddress,
       port,
@@ -210,7 +217,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
 
     _socket.inputStream.listen((data) {
       var msg = utf8.decode(data.data);
-
+      messageProvider.messages.add([msg, "1"]);
       print("Received from ${_isHost ? "Host" : "Client"} $msg");
       snackBar("Received from ${_isHost ? "Host" : "Client"} $msg");
     });
@@ -421,7 +428,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                         //padding: EdgeInsets.all(24)
                         
                       ),
-                      onPressed:  /*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
+                      onPressed:  _isConnected ?/*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
                       ()async{
                         /*showModalBottomSheet(
                           context: context, builder: (context)=> ScreenChat(),
@@ -441,6 +448,14 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                           
                           builder: (context) => ScreenChat(),
                         ));
+                      }:()=>{
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Sem conexão! Crie uma conexão wifi direct"),
+                            duration: Duration(seconds: 7),
+                            backgroundColor: const Color.fromARGB(255, 0, 14, 27),
+                          )
+                        )
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -486,10 +501,10 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
       
                       if (_isConnected) {
                         await FlutterP2pPlus.cancelConnect(_peers[index]);
-                          bool _isConnected = false;
-                          bool _isHost = false;
-                          bool _isOpen = false;
-                          String _deviceAddress = "";
+                          _isConnected = false;
+                          _isHost = false;
+                          _isOpen = false;
+                          _deviceAddress = "";
                           snack("Conexão desconectada",false);
                       } else {
                         await _connect(_peers[index]);
