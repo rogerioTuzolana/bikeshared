@@ -1,10 +1,6 @@
 
-import 'dart:convert';
-
 import 'package:bikeshared/models/solicitation.dart';
-import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/solicitation_repository.dart';
-import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_trajectory.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +25,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
   }
   @override
   Widget build(BuildContext context) {
-    final solicitations = StationRepository.list;
+    //final solicitations = StationRepository.list;
     
     return 
     Scaffold(
@@ -110,10 +106,10 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                             ),
                             onTap: (() {
                               showModalBottomSheet(
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                                 context: context, builder: (context)=>modalInfo(context, solicitation),
                                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                                anchorPoint: Offset(4, 5),
+                                anchorPoint: const Offset(4, 5),
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(30),
@@ -123,7 +119,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                               );
                             }),
                             onLongPress: () {
-                              print("press");
+                              //print("press");
                             },
                           );
                         },
@@ -159,7 +155,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
           const SizedBox(height: 20,),
           SizedBox(
             width: size.width,
-            child: Text(
+            child: const Text(
               "Estação de Saida:",
               style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
               textAlign: TextAlign.left,
@@ -199,17 +195,17 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
           if(solicitation.id == 1)
           ElevatedButton(
             style: ButtonStyle(                  
-              padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
-              backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 248, 36, 36)),
+              padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+              backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 248, 36, 36)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 ),
               ),
             ),
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,  
-              children: const [
+              children: [
                 Text(
                   "Cancelar", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
@@ -238,14 +234,14 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                   textAlign: TextAlign.left,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               SizedBox(
                 width: size.width,
                 child: Text(
                   solicitation.address,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 17,
                     color: Color.fromARGB(221, 139, 139, 139)
                   ),
@@ -255,7 +251,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
               const SizedBox(height: 3,),         
               SizedBox(
                 width: size.width,
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.location_pin,
@@ -277,9 +273,9 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
             SizedBox(
               width: size.width,
               child: InkWell(
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.map_sharp,
                       //color: Color.fromARGB(255, 255, 255, 255),
@@ -292,8 +288,8 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                   ],
                 ),
                 onTap: (){
-                  LatLng sourceLocation = LatLng(-8.8649484, 13.2939577);
-                  LatLng destination = LatLng(-8.7663581, 13.2482776);
+                  LatLng sourceLocation = const LatLng(-8.8649484, 13.2939577);
+                  LatLng destination = const LatLng(-8.7663581, 13.2482776);
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) => ScreenTrajectory(sourceLocation: sourceLocation, destination: destination,),
                   ));

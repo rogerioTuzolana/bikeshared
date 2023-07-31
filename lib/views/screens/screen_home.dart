@@ -7,7 +7,7 @@ import 'package:bikeshared/views/components/station_details.dart';
 import 'package:bikeshared/views/screens/screen_about.dart';
 import 'package:bikeshared/views/screens/screen_locations.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
-import 'package:bikeshared/views/screens/ScreenSolicitations.dart';
+import 'package:bikeshared/views/screens/screen_solicitations.dart';
 import 'package:bikeshared/views/screens/screen_profile.dart';
 import 'package:bikeshared/views/screens/screen_wifi.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +15,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:typed_data';
-import 'package:image/image.dart' as IMG;
+//import 'package:image/image.dart' as IMG;
 
 final appKey = GlobalKey();
 
@@ -50,42 +49,13 @@ class _ScreenHomeState extends State<ScreenHome> {
   static const LatLng destination = LatLng(-8.8649484, 13.2939577);
 
   //variavel para marcacao de estacoes
-  Set<Marker> markers = Set<Marker>();
+  Set<Marker> markers = <Marker>{};
 
   //variaveis para marcação de coordenadas
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   late PolylinePoints polylinePoints;
 
-  //late PolylinePoints polylinePoints;
-
-  int polylineIdCount = 1;
-  
-  final Polyline _kPolyline = Polyline(
-    polylineId: PolylineId('kPolyline'),
-    points: [
-      /*LatLng(-8.8645981, 13.2989975),
-      LatLng(-8.8643581, 13.2932776)*/
-      LatLng(-8.8905235, 13.2274002), 
-      LatLng(-8.8649484, 13.2939577)
-    ],
-    width: 2
-  );
-
-  /*void setPolyPoints() async{
-    final String polylineIdVal = 'polyline_$polylineIdCount';
-    
-    _polylines.add(
-      Polyline(
-        polylineId: PolylineId('kPolyline'),
-        points: [
-          LatLng(-8.8645981, 13.2989975),
-          LatLng(-8.8643581, 13.2932776)
-        ],
-        width: 5
-      )
-    );
-  }*/
 
   double degreesToRadians(double degrees) {
     return degrees * pi / 180;
@@ -110,7 +80,7 @@ class _ScreenHomeState extends State<ScreenHome> {
 
 
   void setPolylines() async{
-    print("Antes");
+
     
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleKey, 
@@ -118,25 +88,23 @@ class _ScreenHomeState extends State<ScreenHome> {
       PointLatLng(destination.latitude, destination.longitude),
       
     );
-      print("Depois");
-      print(result.status);
+      
+      /*print(result.status);
       print(result.points);
-      print(result.errorMessage);
+      print(result.errorMessage);*/
       if (result.points.isNotEmpty) {
-        result.points.forEach((point) {
-          print("Entrou");
-          print(point);
+        for (var point in result.points) {
           polylineCoordinates.add(
             LatLng(point.latitude, point.longitude)
           );
-        });
+        }
 
         setState(() {
           _polylines.add(
             Polyline(
             width: 3,
-            polylineId: PolylineId('polyLine'),
-            color: Color.fromARGB(255, 9, 67, 82),
+            polylineId: const PolylineId('polyLine'),
+            color: const Color.fromARGB(255, 9, 67, 82),
             points: polylineCoordinates)
           );
         });
@@ -178,7 +146,7 @@ class _ScreenHomeState extends State<ScreenHome> {
       StationController.lat = lat;
       StationController.long = long;
 
-      await StationController.listStations();
+      //await StationController.listStations();
       
       _mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(lat, long)));
     } catch (e) {
@@ -187,20 +155,20 @@ class _ScreenHomeState extends State<ScreenHome> {
     
   }
 
-  Uint8List? resizeImage(Uint8List data, width, height) {
+  /*Uint8List? resizeImage(Uint8List data, width, height) {
     Uint8List? resizedData = data;
     IMG.Image? img = IMG.decodeImage(data);
     IMG.Image resized = IMG.copyResize(img!, width: width, height: height);
     resizedData = Uint8List.fromList(IMG.encodePng(resized));
     return resizedData;
-  }
+  }*/
 
   void loadingStation () {
     final stations = StationRepository.list;
-    stations.forEach((station) async { 
+    for (var station in stations) {
       markers.add(
         Marker(
-          markerId: MarkerId(station.name),
+          markerId: MarkerId(station.stationId),
           position: LatLng(station.lat,station.long),
           /*icon: await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(),
@@ -209,9 +177,9 @@ class _ScreenHomeState extends State<ScreenHome> {
           onTap: ()=>{
             showModalBottomSheet(
               context: context, builder: (context)=> StationDetails(station: station),
-              backgroundColor: Color.fromARGB(255, 255, 255, 255),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              anchorPoint: Offset(4, 5),
+              anchorPoint: const Offset(4, 5),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
@@ -224,7 +192,7 @@ class _ScreenHomeState extends State<ScreenHome> {
           },
         )
       );
-    });
+    }
   }
   late Future<LatLng> location;
   @override
@@ -237,7 +205,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     getPosition();
     loadingStation ();
 
-    //StationController.getLocation();
+    StationController.getLocation();
   }
 
   @override
@@ -257,7 +225,7 @@ class _ScreenHomeState extends State<ScreenHome> {
 
     
     //print(StationRepository.list[0].name);
-    print(markers);
+    //print(markers);
     return 
     Scaffold(
       //key: appKey,
@@ -267,12 +235,11 @@ class _ScreenHomeState extends State<ScreenHome> {
       body: /*ChangeNotifierProvider<StationController>(
         
         create: (context)=>StationController(),*/
-        Container(
-        child: Builder(builder: (context){
+        Builder(builder: (context){
           
           /*final local = context.watch<StationController>();*/
-          print(lat);
-          print(long);
+          /*print(lat);
+          print(long);*/
           /*print(polylineCoordinates);*/
           return GoogleMap(
             initialCameraPosition: CameraPosition(
@@ -290,6 +257,7 @@ class _ScreenHomeState extends State<ScreenHome> {
             markers: markers,
             onMapCreated: (GoogleMapController gController) async{
               _mapsController = gController;
+              /*await */StationController.listStations();
               getPosition();
               loadingStation();
               
@@ -307,7 +275,6 @@ class _ScreenHomeState extends State<ScreenHome> {
           );
           
         }),
-      ),
       drawer: Drawer(
         width: MediaQuery.of(context).size.width*0.7,
         child: SingleChildScrollView(
@@ -419,7 +386,7 @@ class _ScreenHomeState extends State<ScreenHome> {
           }else if (id == 4) {
             //Navigator.of(context).pop();
             Navigator.push(context, MaterialPageRoute(
-              builder: (context) =>  ScreenWifi(),
+              builder: (context) =>  const ScreenWifi(),
             ));
           }else if (id == 5) {
             //Navigator.of(context).pop();
@@ -491,7 +458,7 @@ class _ScreenHomeState extends State<ScreenHome> {
             width: size.width,
             child: Text(
               station.address,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 17,
                 color: Color.fromARGB(221, 163, 163, 163)
               ),
@@ -503,13 +470,13 @@ class _ScreenHomeState extends State<ScreenHome> {
             width: size.width,
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.location_pin,
                   color: Color.fromARGB(255, 192, 14, 1),
                 ),
                 Text(
                   station.name,
-                  style: TextStyle(fontSize: 15),
+                  style: const TextStyle(fontSize: 15),
                   textAlign: TextAlign.left,
                 )
               ],
@@ -519,17 +486,17 @@ class _ScreenHomeState extends State<ScreenHome> {
           
           ElevatedButton(
             style: ButtonStyle(                  
-              padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
-              backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 0, 0, 0)),
+              padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+              backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 ),
               ),
             ),
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,  
-              children: const [
+              children: [
                 Text(
                   "Solicitar", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
@@ -558,7 +525,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     final snackBar = SnackBar(
       content: Text(mensagem),
       backgroundColor: Colors.green,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -582,7 +549,7 @@ class _ScreenHomeState extends State<ScreenHome> {
             children: [
               ElevatedButton(
                 style: ButtonStyle(                  
-                  padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+                  padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
                   backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 14, 117, 117)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -590,9 +557,9 @@ class _ScreenHomeState extends State<ScreenHome> {
                     ),
                   ),
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,  
-                  children: const [
+                  children: [
                     Icon(Icons.logout_outlined,color: Colors.redAccent,),
                     Text(
                       "Sim", 
@@ -615,7 +582,7 @@ class _ScreenHomeState extends State<ScreenHome> {
               ),
               ElevatedButton(
                 style: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+                  padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
                   backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 14, 117, 117)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -623,9 +590,9 @@ class _ScreenHomeState extends State<ScreenHome> {
                     ),
                   ),
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,  
-                  children: const [
+                  children: [
                     Icon(Icons.cancel, color: Color.fromARGB(255, 192, 195, 201),),
                     Text(
                       "Não", 
@@ -649,70 +616,3 @@ class _ScreenHomeState extends State<ScreenHome> {
 
 }
 
-/*return Scaffold(
-      appBar: AppBar(
-        title: Text('Baika Seguro'),
-        centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 126, 12, 97),
-      ),
-      body: //Stack(
-        //children:[
-        //],),
-        SingleChildScrollView(
-            child: Column(
-              children:[
-                SizedBox(height: 20,),
-                Container(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width-40,
-                      height: 70,
-                      child:ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 226, 24, 176)),
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)))
-                          ),
-                          onPressed: (){
-                            /*Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => Splash(),
-                            ));*/
-                          },
-                          child: Text('Meus Telemóveis', style: TextStyle(
-                              fontSize: 24,
-                              decoration: TextDecoration.none,
-                              color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ),
-                ),
-                SizedBox(height: 20,),
-                
-                Container(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width-40,
-                      height: 70,
-                      child:ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 226, 24, 176)),
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)))
-                          ),
-                          onPressed: (){
-                            /*Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => Splash(),
-                            ));*/
-                          },
-                          child: Text('Meus Telemóveis', style: TextStyle(
-                              fontSize: 24,
-                              decoration: TextDecoration.none,
-                              color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ),
-                ),
-              ]
-            )
-        )
-    );*/

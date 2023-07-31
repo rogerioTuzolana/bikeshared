@@ -74,7 +74,7 @@ class UserController extends ChangeNotifier{
       }
     } catch (e) {
       //print('Tempo de execução demorada!');
-      //print(e);
+      
       print(e.toString());
       return false;
       //rethrow;

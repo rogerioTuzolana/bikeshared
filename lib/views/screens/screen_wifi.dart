@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:bikeshared/controllers/MessageController.dart';
 import 'package:bikeshared/repositories/socket.dart';
 import 'package:bikeshared/views/screens/screen_chat.dart';
-import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 import 'package:flutter_p2p_plus/protos/protos.pb.dart';
@@ -19,7 +18,6 @@ class ScreenWifi extends StatefulWidget {
 }
 
 class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   //Registo de eventos e lista de dispositivos 
   List<StreamSubscription> _subscriptions = [];
@@ -31,7 +29,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   bool _isHost = false;
   bool _isOpen = false;
   String _deviceAddress = "";
-  int _port = 8888;
+  final int _port = 8888;
   String typeUser = '';
 
 
@@ -146,8 +144,15 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   }
 
   Future<bool?> _discover() async{
-    bool? status = await FlutterP2pPlus.discoverDevices();
-    return status;
+    bool? status;
+    try {
+      status = await FlutterP2pPlus.discoverDevices();
+      return status;
+    } catch (e) {
+      return false;
+    }
+    
+    
   }
 
   Future<bool?> _connect(peer) async{
@@ -318,15 +323,15 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         //shape: const CircleBorder(),
-                        primary: const Color.fromARGB(255, 0, 14, 27),
+                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
                         shadowColor: const Color.fromARGB(255, 0, 0, 0),
                         //padding: EdgeInsets.all(24)
                         
                       ),
                       
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.search_sharp, size: 25,),
                           Text("Procurar despositivos"),
                         ],
@@ -348,16 +353,16 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         //shape: const CircleBorder(),
-                        primary: const Color.fromARGB(255, 0, 14, 27),
+                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
                         shadowColor: const Color.fromARGB(255, 0, 0, 0),
                         //padding: EdgeInsets.all(24)
                         
                       ),
                       onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
                       
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.door_front_door, size: 25,),
                           Text("Abrir a porta de conexão"),
                         ],
@@ -376,15 +381,15 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         //shape: const CircleBorder(),
-                        primary: const Color.fromARGB(255, 0, 14, 27),
+                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
                         shadowColor: const Color.fromARGB(255, 0, 0, 0),
                         //padding: EdgeInsets.all(24)
                         
                       ),
-                      onPressed: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
-                      child: Row(
+                      onPressed: _isConnected &&!_isHost ? () => _connectToPort(_port) : null,
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.connect_without_contact_sharp, size: 25,),
                           Text("Conectar para porta"),
                         ],
@@ -423,7 +428,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         //shape: const CircleBorder(),
-                        primary: const Color.fromARGB(255, 49, 154, 196),
+                        backgroundColor: const Color.fromARGB(255, 49, 154, 196),
                         shadowColor: const Color.fromARGB(255, 94, 141, 155),
                         //padding: EdgeInsets.all(24)
                         
@@ -450,10 +455,10 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                         ));
                       }:()=>{
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text("Sem conexão! Crie uma conexão wifi direct"),
+                          const SnackBar(
+                            content: Text("Sem conexão! Crie uma conexão wifi direct"),
                             duration: Duration(seconds: 7),
-                            backgroundColor: const Color.fromARGB(255, 0, 14, 27),
+                            backgroundColor: Color.fromARGB(255, 0, 14, 27),
                           )
                         )
                       },
@@ -483,7 +488,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Lista de Despositivo",
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
               ListView.builder(
@@ -495,7 +500,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                     title: Text(_peers[index].deviceName),
                     subtitle: Text(_peers[index].deviceAddress),
                     trailing: (/*_diviceAddress!="" && _diviceAddress == _peers[index].deviceAddress && */_isConnected == true)?
-                    Icon(Icons.wifi_outlined,color: Colors.green,):Icon(Icons.wifi_outlined, color:  Colors.grey,),
+                    const Icon(Icons.wifi_outlined,color: Colors.green,):const Icon(Icons.wifi_outlined, color:  Colors.grey,),
                     onTap: () async{
                       print("${_isConnected ? "Disconnect" : "Connect"} to device: $_deviceAddress");
       
@@ -599,7 +604,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
-        duration: Duration(seconds: 7),
+        duration: const Duration(seconds: 7),
         backgroundColor: (status)?Colors.green: Colors.red,
       ),
     );
@@ -615,7 +620,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

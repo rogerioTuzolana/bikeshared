@@ -1,16 +1,11 @@
-import 'dart:convert';
 
 import 'package:bikeshared/controllers/UserController.dart';
-import 'package:bikeshared/models/user.dart';
-import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/auth_input.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
-import 'package:bikeshared/views/components/auth_link_footer.dart';
-import 'package:bikeshared/views/screens/screen_home.dart';
+//import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
+import 'package:bikeshared/views/screens/screen_preloading.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ScreenRegister extends StatefulWidget {
   const ScreenRegister({super.key});
@@ -20,7 +15,7 @@ class ScreenRegister extends StatefulWidget {
 }
 
 class _ScreenRegisterState extends State<ScreenRegister> {
-  final _id = TextEditingController();
+  final _email = TextEditingController();
   final _name = TextEditingController();
   final _password = TextEditingController();
   final _formkey = GlobalKey<FormState>();
@@ -28,11 +23,13 @@ class _ScreenRegisterState extends State<ScreenRegister> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return MaterialApp(
 
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Color.fromARGB(255, 0, 59, 114),
+        primaryColor: const Color.fromARGB(255, 0, 59, 114),
         textTheme: Theme.of(context).textTheme.apply(bodyColor: const Color.fromARGB(255, 0, 0, 0)),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -43,37 +40,37 @@ class _ScreenRegisterState extends State<ScreenRegister> {
           children: [
             Positioned(
               top: 0,
-              left: MediaQuery.of(context).size.width*0.3,
+              left: size.width*0.3,
               child: Image.asset('images/kit/borda3.png')
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height*0.15,
-              right: MediaQuery.of(context).size.width*0,
+              top: size.height*0.15,
+              right: size.width*0,
               child: Image.asset('images/kit/borda2.png',height: 100,)
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height*0.7,
-              left: MediaQuery.of(context).size.width*0,
+              top: size.height*0.7,
+              left: size.width*0,
               child: Image.asset('images/kit/borda.png',height: 140,)
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height*0.75,
-              right: MediaQuery.of(context).size.width*0.65,
+              top: size.height*0.75,
+              right: size.width*0.65,
               child: Image.asset('images/kit/bolinha.png',height: 140,)
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height*0.001,
-              right: MediaQuery.of(context).size.width*0.46,
+              top: size.height*0.001,
+              right: size.width*0.46,
               child: Image.asset('images/kit/bolinha.png',height: 140,)
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height*0.1,
-              left: MediaQuery.of(context).size.width*0.7,
+              top: size.height*0.1,
+              left: size.width*0.7,
               child: Image.asset('images/kit/bolinha.png',height: 140,)
             ),
 
             /*Container(
-                margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.085),
+                margin: EdgeInsets.only(top: size.height*0.085),
                 height: 130,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
@@ -83,40 +80,41 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                 ),
                 
             ),*/
-            
-            Container(
-              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.25),
-              width: MediaQuery.of(context).size.width,
-              child: const Text(
-                "Bike Shared",
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 40,color: Colors.white,),
-                textAlign: TextAlign.center,
-              ),
-            ),
-
 
             SingleChildScrollView(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.4,right: 35, left: 35),
+              padding: EdgeInsets.only(top: size.height*0.2,right: 35, left: 35),
               child:Form(
                 key: _formkey,
                 child: Column(
                   children: [
+                    SizedBox(
+                      //margin: EdgeInsets.only(top: size.height*0.25),
+                      width: size.width,
+                      child: const Text(
+                        "Bike Shared",
+                        style: TextStyle(fontWeight: FontWeight.bold,fontSize: 40,color: Colors.white,),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    SizedBox(height: size.height * 0.05,),
+
                     AuthInput(
                       id: _name,
                       hintText: 'Nome',
                       obscureText: false,
                       message: 'Informe o seu nome',
-                      icon: Icon(Icons.person),
+                      icon: const Icon(Icons.person),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
                     AuthInput(
-                      id: _id,
+                      id: _email,
                       hintText: 'Email',
                       obscureText: false,
                       message: 'Informe o seu email',
-                      icon: Icon(Icons.email)
+                      icon: const Icon(Icons.email)
                     ),
                     const SizedBox(
                       height: 20,
@@ -135,34 +133,45 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                       height: 20,
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width*0.4,
+                      width: size.width*0.4,
                     child:
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          primary: /*const Color(0xfffccb1b),*/Color.fromARGB(255, 14, 117, 117),
+                          backgroundColor: const Color.fromARGB(255, 14, 117, 117),
                           minimumSize: const Size.fromHeight(50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: isLoading?const CircularProgressIndicator(color: Colors.white,strokeWidth: 5.0,):const Text('Cadastrar',style: TextStyle(fontSize: 20,color: Colors.white),),
-                        onPressed: () /*async*/async {
+                        child: isLoading? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,)):const Text('Cadastrar',style: TextStyle(fontSize: 20,color: Colors.white),),
+                        onPressed: () async {
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          print(_email.text);
+                          print(_name.text);
+                          print(_password.text);
                           
                           if (_formkey.currentState!.validate()) {
-                            bool status = await UserController.activeUser(_id.text);
+                            bool status = await UserController.activeUser(_email.text);
                             if (status == false) {
-
-                              showModal('Este email já existe!');
+                              //_password.clear();
+                              showModal('Este email já existe!', size);
                             }else{
 
-                              Navigator.pushReplacement(
+                              Navigator.push/*Replacement*/(
                                 context, 
                                 MaterialPageRoute(
-                                builder: (context) => const ScreenHome(),
+                                builder: (context) => const ScreenPreloading(),/*ScreenHome()*/
                               ));
                             }
                             
-                            
+                            Future.delayed(const Duration(seconds: 1),() {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
                             //final user = UserRepository.tabela;
                             /*limpa SharedPreferencesManager.init();
                             SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
@@ -193,6 +202,11 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                             
                             
                           }
+                          Future.delayed(const Duration(seconds: 1),() {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          });
                         },
                       
                     ),),
@@ -202,7 +216,7 @@ class _ScreenRegisterState extends State<ScreenRegister> {
 
             ),
 
-            link(),
+            link(size),
           ],
         )
       ),
@@ -210,12 +224,12 @@ class _ScreenRegisterState extends State<ScreenRegister> {
     );
   }
 
-  showModal(message){
+  showModal(message, size){
     return showModalBottomSheet(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       context: context, 
       builder: (context)=>SizedBox(
-        height: MediaQuery.of(context).size.height * 0.1,
+        height: size.height * 0.1,
         child: Center(child: Text(message)),
       ),
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -229,10 +243,10 @@ class _ScreenRegisterState extends State<ScreenRegister> {
     );
   }
   
-  Widget link() {
+  Widget link(size) {
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.8,right: 35, left: 35),
+      padding: EdgeInsets.only(top: size.height*0.8,right: 35, left: 35),
       child: Column(
         
         children: [
@@ -241,9 +255,9 @@ class _ScreenRegisterState extends State<ScreenRegister> {
           ),
           InkWell(     
             child: 
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text(
                   "Já tem uma conta? ", 
                   style: TextStyle(

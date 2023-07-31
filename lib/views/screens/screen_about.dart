@@ -2,10 +2,8 @@
 //import 'dart:convert';
 
 import 'package:bikeshared/controllers/StationController.dart';
-import 'package:bikeshared/models/station.dart';
-import 'package:bikeshared/repositories/station_repository.dart';
-import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
+import 'package:bikeshared/views/screens/screen_preloading.dart';
 import 'package:flutter/material.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:http/http.dart' as http;
@@ -50,10 +48,10 @@ class _ScreenAboutState extends State<ScreenAbout> {
 
   buildBody(){
     Size size = MediaQuery.of(context).size;
-    double lat = StationController.lat;
+    /*double lat = StationController.lat;
     double long = StationController.long;
     print("Yesss $long");
-    print(SharedPreferencesManager.sharedPreferences.getString("email"));
+    print(SharedPreferencesManager.sharedPreferences.getString("email"));*/
     return 
         Stack(children: [
           
@@ -72,17 +70,22 @@ class _ScreenAboutState extends State<ScreenAbout> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       //shape: const CircleBorder(),
-                      primary: const Color.fromARGB(255, 0, 14, 27),
+                      backgroundColor: const Color.fromARGB(255, 0, 14, 27),
                       shadowColor: const Color.fromARGB(255, 0, 0, 0),
                       //padding: EdgeInsets.all(24)
                       
                     ),
                     onPressed: () async{
                       //await StationController.testPing();
-                      await StationController.getCredit("rogerio33@gmail.com");
+                      //await StationController.getCredit("rogerio33@gmail.com");
+                      Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(
+                        builder: (context) => const ScreenPreloading(),
+                      ));
                     },
                     
-                    child: Text("Teste soap"),
+                    child: const Text("Teste soap"),
                   ),
                 ),
               ])      

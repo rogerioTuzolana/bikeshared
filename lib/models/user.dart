@@ -13,14 +13,5 @@ class User{
     required this.password,
   });
 
-  User.fromJson(Map<String, dynamic> json){
-    name= json["nome"];
-    email = json["email"];
-    id = json["id"];
-  }
-  Map<String, dynamic> toJson()=>{
-    "name": name,
-    "email": email,
-    "id": id
-  };
+  
 }

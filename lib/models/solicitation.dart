@@ -12,4 +12,5 @@ class Solicitation{
     required this.lat,
     required this.long,
   });
+
 }

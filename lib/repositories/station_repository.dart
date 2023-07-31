@@ -4,6 +4,7 @@ import 'package:bikeshared/models/station.dart';
 
 class StationRepository /*extends ChangeNotifier*/{
     static late List<Station> list = [];
+    
     static final List<Station> list1 = [
     Station(
       stationId: "D01_Station2",

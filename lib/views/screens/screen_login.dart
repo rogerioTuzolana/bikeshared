@@ -1,13 +1,9 @@
 
-import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/models/user.dart';
 import 'package:bikeshared/repositories/user_repository.dart';
 import 'package:bikeshared/services/shared_preferences_manager.dart';
-import 'package:bikeshared/services/user_services.dart';
-import 'package:bikeshared/views/components/auth_input.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 import 'package:bikeshared/views/components/auth_link_footer.dart';
-import 'package:bikeshared/views/components/show_essage_auth_error.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,7 +105,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                         fillColor: Colors.white,
                         filled: true,
                         hintText: 'Email',
-                        suffixIcon: Icon(Icons.email,),
+                        suffixIcon: const Icon(Icons.email,),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
                         contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                         focusedBorder: OutlineInputBorder(
@@ -146,20 +142,25 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     child:
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          primary: /*const Color(0xfffccb1b),*/Color.fromARGB(255, 14, 117, 117),
+                          backgroundColor: const Color.fromARGB(255, 14, 117, 117),
                           minimumSize: const Size.fromHeight(50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: isLoading?const CircularProgressIndicator(color: Colors.white,strokeWidth: 5.0,):const Text('Entrar',style: TextStyle(fontSize: 20,color: Colors.white),),
+                        child: isLoading? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white,strokeWidth: 5.0,)):const Text('Entrar',style: TextStyle(fontSize: 20,color: Colors.white),),
                         onPressed: () async{
                           setState(() {
                             isLoading = true;
                           });
-
+                          
+                          Navigator.pushReplacement(
+                            context, 
+                            MaterialPageRoute(
+                            builder: (context) => const ScreenHome(),
+                          ));
                           final users = UserRepository.tabela;
-                          print(users[0].email);
+                          //print(users[0].email);
                           if (_formkey.currentState!.validate()) {
                             /*UserController.activeUser(_id.text);
                             //activeUser
@@ -170,26 +171,25 @@ class _ScreenLoginState extends State<ScreenLogin> {
                               builder: (context) => const ScreenHome(),
                             ));*/
                             
-                            final user = UserRepository.tabela;
                             SharedPreferencesManager.init();
                             SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
                             
-                            users.forEach((user) { 
+                            for (var user in users) { 
                               if (user.email == _id.text && user.password == _password.text) {
                                 authStatus = true;
                                 userExist = user;
-                                print("Temmmmmmmmmmm");
-                                return;
+                                //print("Temmmmmmmmmmm");
+                                continue;
                               }
-                            });
+                            }
 
                             if(authStatus==true){
 
                               await sharedPreference.setString('token', "${userExist.id}");
                               await sharedPreference.setString('name', userExist.name);
                               await sharedPreference.setString('email', userExist.email);
-                              await sharedPreference.setInt('point', 10);
-                              print("yas");
+                              await sharedPreference.setInt('credit', 10);
+                              await sharedPreference.setBool('hasBikeShared', false);
 
                               Navigator.pushReplacement(
                                 context, 

@@ -3,9 +3,8 @@ import 'dart:math';
 
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
-import 'package:bikeshared/views/components/station_details.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
-import 'package:bikeshared/views/screens/ScreenSolicitations.dart';
+import 'package:bikeshared/views/screens/screen_solicitations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,9 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ScreenTrajectory extends StatefulWidget {
-  late LatLng sourceLocation;// = LatLng(-8.8905235, 13.2274002);
-  late LatLng destination; //= LatLng(-8.8649484, 13.2939577);
-  ScreenTrajectory({super.key, required this.sourceLocation, required this.destination});
+  final LatLng sourceLocation;// = LatLng(-8.8905235, 13.2274002);
+  final LatLng destination; //= LatLng(-8.8649484, 13.2939577);
+  const ScreenTrajectory({super.key, required this.sourceLocation, required this.destination});
 
   @override
   State<ScreenTrajectory> createState() => _ScreenTrajectoryState();
@@ -38,10 +37,10 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
   late LatLng destination2;// = LatLng(-8.8649484, 13.2939577);
 
   //variavel para marcacao de estacoes
-  Set<Marker> markers = Set<Marker>();
+  Set<Marker> markers = <Marker>{};
 
   //variaveis para marcação de coordenadas
-  Set<Polyline> _polylines = Set<Polyline>();
+  final Set<Polyline> _polylines = <Polyline>{};
   List<LatLng> polylineCoordinates = [];
   late PolylinePoints polylinePoints;
 
@@ -85,30 +84,30 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
   }
 
   void setPolylines() async{
-    print("Antes");
+    //print("Antes");
     
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleKey, 
       PointLatLng(widget.sourceLocation.latitude, widget.sourceLocation.longitude), 
       PointLatLng(widget.destination.latitude, widget.destination.longitude));
-      print("Depois");
+      /*print("Depois");
       print(result.status);
-      print(result.points);
+      print(result.points);*/
       if (result.points.isNotEmpty) {
-        result.points.forEach((point) {
-          print("Entrou");
-          print(point);
+        for (var point in result.points) {
+          /*print("Entrou");
+          print(point);*/
           polylineCoordinates.add(
             LatLng(point.latitude, point.longitude)
           );
-        });
+        }
 
         setState(() {
           _polylines.add(
             Polyline(
             width: 3,
-            polylineId: PolylineId('polyLine'),
-            color: Color.fromARGB(255, 9, 67, 82),
+            polylineId: const PolylineId('polyLine'),
+            color: const Color.fromARGB(255, 9, 67, 82),
             points: polylineCoordinates)
           );
         });
@@ -154,9 +153,9 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
   }
 
   void loadingStation () {
-    print("thjerhtrjek");
+    //print("thjerhtrjek");
     final stations = StationRepository.list;
-    stations.forEach((station) async { 
+    for (var station in stations) { 
       markers.add(
         Marker(
           markerId: MarkerId(station.name),
@@ -168,9 +167,9 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
           onTap: ()=>{
             showModalBottomSheet(
               context: context, builder: (context)=> modalSolicitation(context, station),
-              backgroundColor: Color.fromARGB(255, 255, 255, 255),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              anchorPoint: Offset(4, 5),
+              anchorPoint: const Offset(4, 5),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
@@ -183,7 +182,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
           },
         )
       );
-    });
+    }
   }
 
   @override
@@ -199,11 +198,11 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
     getPosition();
     loadingStation();
 
-    double distance = calculateDistance(widget.sourceLocation.latitude, widget.sourceLocation.longitude,
+    /*double distance = */calculateDistance(widget.sourceLocation.latitude, widget.sourceLocation.longitude,
      widget.destination.latitude, widget.destination.longitude);
 
-     double roundedDistance = double.parse(distance.toStringAsFixed(2));
-    print("Distancia entre pontos $roundedDistance");
+    //double roundedDistance = double.parse(distance.toStringAsFixed(2));
+    //print("Distancia entre pontos $roundedDistance");
   }
 
   @override
@@ -222,7 +221,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
     }*/
 
     
-    print(markers);
+    //print(markers);
     return 
     Scaffold(
       //key: appKey,
@@ -232,12 +231,11 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
       body: /*ChangeNotifierProvider<StationController>(
         
         create: (context)=>StationController(),*/
-        Container(
-        child: Builder(builder: (context){
+        Builder(builder: (context){
           
           /*final local = context.watch<StationController>();*/
-          print(lat);
-          print(long);
+          /*print(lat);
+          print(long);*/
           /*print(polylineCoordinates);*/
           return GoogleMap(
             initialCameraPosition: CameraPosition(
@@ -271,7 +269,6 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
           );
           
         }),
-      ),
       
     );
   }
@@ -317,7 +314,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
             width: size.width,
             child: Text(
               station.address,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 17,
                 color: Color.fromARGB(221, 163, 163, 163)
               ),
@@ -329,13 +326,13 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
             width: size.width,
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.location_pin,
                   color: Color.fromARGB(255, 192, 14, 1),
                 ),
                 Text(
                   station.name,
-                  style: TextStyle(fontSize: 15),
+                  style: const TextStyle(fontSize: 15),
                   textAlign: TextAlign.left,
                 )
               ],
@@ -367,7 +364,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
             children: [
               ElevatedButton(
                 style: ButtonStyle(                  
-                  padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+                  padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
                   backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 255, 255, 255)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -375,9 +372,9 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
                     ),
                   ),
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,  
-                  children: const [
+                  children: [
                     Icon(Icons.logout_outlined,color: Colors.redAccent,),
                     Text(
                       "Sim", 
@@ -400,7 +397,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
               ),
               ElevatedButton(
                 style: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
+                  padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
                   backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 255, 255, 255)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -408,9 +405,9 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
                     ),
                   ),
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,  
-                  children: const [
+                  children: [
                     Icon(Icons.cancel, color: Colors.blueAccent,),
                     Text(
                       "Não", 
@@ -433,71 +430,3 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
   }
 
 }
-
-/*return Scaffold(
-      appBar: AppBar(
-        title: Text('Baika Seguro'),
-        centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 126, 12, 97),
-      ),
-      body: //Stack(
-        //children:[
-        //],),
-        SingleChildScrollView(
-            child: Column(
-              children:[
-                SizedBox(height: 20,),
-                Container(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width-40,
-                      height: 70,
-                      child:ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 226, 24, 176)),
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)))
-                          ),
-                          onPressed: (){
-                            /*Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => Splash(),
-                            ));*/
-                          },
-                          child: Text('Meus Telemóveis', style: TextStyle(
-                              fontSize: 24,
-                              decoration: TextDecoration.none,
-                              color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ),
-                ),
-                SizedBox(height: 20,),
-                
-                Container(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width-40,
-                      height: 70,
-                      child:ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 226, 24, 176)),
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)))
-                          ),
-                          onPressed: (){
-                            /*Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => Splash(),
-                            ));*/
-                          },
-                          child: Text('Meus Telemóveis', style: TextStyle(
-                              fontSize: 24,
-                              decoration: TextDecoration.none,
-                              color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ),
-                ),
-              ]
-            )
-        )
-    );*/

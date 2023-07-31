@@ -18,9 +18,9 @@ class _HeaderDrawerState extends State<HeaderDrawer> {
       width: double.infinity,
       height: 150,//200,
       padding: const EdgeInsets.only(top: 20.0),
-      child: Column(
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           SizedBox(
             width: 80,
             height: 80,

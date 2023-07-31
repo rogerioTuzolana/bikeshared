@@ -10,7 +10,6 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 
 class StationController extends ChangeNotifier{
@@ -112,10 +111,12 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
       long = position.longitude;
       
       //_mapsController.animateCamera(CameraUpdate.newLatLng(LatLng(lat, long)));
-      return LatLng(lat, long);
+      //return LatLng(lat, long);
     } catch (e) {
       //error = e.toString();
-      return const LatLng(-1,-1);
+      //return const LatLng(-1,-1);
+      lat = 0;
+      long = 0;
     }
     
   }
@@ -205,6 +206,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
   }
 
   static Future<bool> listStations() async{
+    
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final xmlBody = '''
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
@@ -289,8 +291,8 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
               stationId: id, 
               name: "Station", 
               address: "Camama",
-              lat: lat, 
-              long: long,
+              lat: lat2, 
+              long: long2,
               capacity: capacity, 
               freeDocks: freeDocks, 
               totalGets: totalGets, 
@@ -326,7 +328,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
     }
   }
 
-  static Future<bool> solicitation(stationId,email) async{
+  static Future<int> solicitation(stationId,email) async{
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     print(stationId);
     final xmlBody = '''
@@ -361,26 +363,42 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
         //print(jsonDecode(response.body)['token']);
         print('Deu certo');
         
+        await SharedPreferencesManager.sharedPreferences.setBool('stationSelected',stationId);
         await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
-        return true;
+        return 0;
       }else if(response.statusCode == 503){
         print('Servidor indisponível');
         print(response.body);
-        return false;
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+        //final x = document.findAllElements('stations');
+
+        print(document);
+        return 1;
       }else if(response.statusCode == 500){
         print('Falha na requisição');
         print(response.body);
-        return false;
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);
+        //final x = document.findAllElements('stations');
+
+        print(document);
+        return 1;
       }else{
         print('Erro na autenticação');
         print(response.body);
-        return false;
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);
+        //final x = document.findAllElements('stations');
+
+        print(document);
+        return 1;
       }
     } catch (e) {
       //print('Tempo de execução demorada!');
       //print(e);
       print(e.toString());
-      return false;
+      return 1;
       //rethrow;
     }
   }
