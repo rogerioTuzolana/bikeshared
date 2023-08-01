@@ -41,7 +41,7 @@ class _ScreenPreloadingState extends State<ScreenPreloading> {
             if (snapshot.hasData) {
               return const ScreenHome();
             }
-
+//return ScreenHome();
             return const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

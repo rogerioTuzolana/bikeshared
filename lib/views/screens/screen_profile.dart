@@ -23,7 +23,7 @@ class _ScreenProfileState extends State<ScreenProfile> {
   @override
   void initState(){
     super.initState();
-    
+     //SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
     credit = StationController.getCredit(email);
     //StationController.getLocation();
   }

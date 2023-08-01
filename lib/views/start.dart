@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
+import 'package:bikeshared/views/screens/screen_preloading.dart';
 //import 'package:bikeshared/splash.dart';
 
 import 'package:bikeshared/views/splash.dart';
@@ -30,7 +30,7 @@ class _StartPageState extends State<StartPage> {
         //print("Não devia");
         Timer(const Duration(seconds: 3),(){
           Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) =>const ScreenHome())
+            MaterialPageRoute(builder: (context) =>const ScreenPreloading())
           );
         });
       } else {
@@ -58,7 +58,7 @@ class _StartPageState extends State<StartPage> {
   Future<bool> verifyToken() async{
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
 
-    if (sharedPreference.getString('token') != "" && sharedPreference.getString('token') != null) {
+    if (sharedPreference.getString('token') != "" && sharedPreference.getString('email') != null) {
       /*print(sharedPreference.getString('token'));
       print("Nooo");
       print("Null:");

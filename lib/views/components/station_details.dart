@@ -95,13 +95,13 @@ class _StationDetailsState extends State<StationDetails> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,  
               children: [
-                hasBikeShared == true && stationSelected == widget.station.stationId?
+                hasBikeShared == true /*&& stationSelected == widget.station.stationId*/?
                 const Text(
                   "Devolver", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ):
-                const Text(
-                  "Solicitar", 
+                 Text(
+                  "Solicitar ${hasBikeShared == true} $stationSelected ${widget.station.stationId}", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 )
               ],
@@ -115,14 +115,30 @@ class _StationDetailsState extends State<StationDetails> {
               if(hasBikeShared == false){
                 int status = await StationController.solicitation(widget.station.stationId, email);
 
-                if(status == 0){
+                if(status == 200){
+                  await StationController.listStations();
                   showModal('Bina alugada com sucesso!', context);
+
+                }else if (status == 0) {
+                  showModal('O utilizador não existe', context);
                 }else if (status == 1) {
-                  showModal('Erro! Algo de errado aconteceu', context);
+                  showModal('O seu crédito é insuficiente', context);
+                }else if(status == 2){
+                  showModal('Utilizador já possui bina', context);
+                }else if(status == 3){
+                  showModal('Estação não encontrada', context);
+                }else if(status == 500){
+                  await StationController.listStations();
+                  showModal('Bina alugada com sucesso!', context);
                 }
 
               }else{
-
+                  bool? status = await StationController.returnedBike(widget.station.stationId, email);
+                  if(status == 200){
+                    showModal('Bina devolvida com sucesso!', context);
+                  }else if (status == 0) {
+                    showModal('Bina nao devolvida', context);
+                  }
               }
               Future.delayed(const Duration(seconds: 1),() {
                 setState(() {

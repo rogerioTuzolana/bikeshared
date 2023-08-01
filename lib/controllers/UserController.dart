@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 class UserController extends ChangeNotifier{
 
-  static Future<bool> activeUser(email) async{
+  static Future<int> activeUser(email) async{
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final xmlBody = '''
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
@@ -58,25 +58,31 @@ class UserController extends ChangeNotifier{
         await sharedPreference.setBool('hasBikeShared', bool.fromEnvironment(hasBikeShared.first.text));
         await sharedPreference.setInt('credit', int.parse(credit.first.text));
         
-        return true;
+        return 0;
       }else if(response.statusCode == 503){
         print('Servidor indisponível');
         print(response.body);
-        return false;
+        return 2;
       }else if(response.statusCode == 500){
         print('Falha na requisição');
+
         print(response.body);
-        return false;
+
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+        final faultstring = document.findAllElements('faultstring').first.text;
+        print(faultstring);
+        return 1;
       }else{
         print('Erro na autenticação');
         print(response.body);
-        return false;
+        return 2;
       }
     } catch (e) {
       //print('Tempo de execução demorada!');
       
       print(e.toString());
-      return false;
+      return 2;
       //rethrow;
     }
   }

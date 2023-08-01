@@ -6,12 +6,14 @@ import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 import 'package:chat_bubbles/date_chips/date_chip.dart';
 import 'package:chat_bubbles/message_bars/message_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 import 'package:provider/provider.dart';
 
 
 class ScreenChat extends StatefulWidget {
-
-  /*const */ScreenChat({super.key, /*required this.typeUser, required this.deviceAddress*/});
+  //TextEditingController message;
+  late P2pSocket socket;
+  ScreenChat({super.key, required this.socket/*required this.typeUser, required this.deviceAddress*/});
 
   @override
   State<ScreenChat> createState() => _ScreenChatState();
@@ -27,7 +29,7 @@ class _ScreenChatState extends State<ScreenChat> {
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
-
+  
   @override
   void initState() {
     super.initState();
@@ -166,7 +168,8 @@ class _ScreenChatState extends State<ScreenChat> {
                 onSend: (message) async{
                   print(message);
                   data.setMessage(message, "0");
-                  await SocketRepo.socket.writeString(message);
+                  await widget.socket.writeString(message);
+                  //await SocketRepo.socket.writeString(message);
                 },
                 actions: const [
                   

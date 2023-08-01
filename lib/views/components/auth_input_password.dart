@@ -19,18 +19,40 @@ class AuthInputPassword extends StatefulWidget {
 
 class _AuthInputPasswordState extends State<AuthInputPassword> {
   
+  Icon _icon = const Icon(Icons.visibility_off);
+  bool _obscureText = true;
+  _showOrHideText() {
+    setState(() {
+      if (_obscureText) {
+        _icon = const Icon(Icons.visibility);
+        _obscureText = false;
+      } else {
+        _icon = const Icon(Icons.visibility_off);
+        _obscureText = true;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return 
       TextFormField(
         controller: widget.id,
         keyboardType: TextInputType.text,
-        obscureText: widget.obscureText,
+        obscureText: _obscureText,
         decoration: InputDecoration(
           fillColor: Colors.white,
           filled: true,
           hintText: widget.hintText,
-          suffixIcon: Icon(Icons.remove_red_eye_outlined, color: Colors.blueGrey,),
+          prefixIcon: const Icon(
+            Icons.lock,
+            color: Colors.blueGrey,
+          ),
+          suffixIcon: IconButton(
+            color: Colors.blueGrey,
+            icon: _icon,
+            onPressed: () => _showOrHideText(),
+          ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
           contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           focusedBorder: OutlineInputBorder(

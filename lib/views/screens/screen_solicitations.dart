@@ -1,6 +1,10 @@
 
+import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/solicitation.dart';
+import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/solicitation_repository.dart';
+import 'package:bikeshared/repositories/station_repository.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_trajectory.dart';
 import 'package:flutter/material.dart';
@@ -101,8 +105,8 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                             selectedTileColor:Colors.blueAccent,               
                             title: Text(solicitation.station,style: const TextStyle(color: Colors.black54),),
                             trailing: Icon(
-                                color: (solicitation.id==1)?Colors.blueAccent:Colors.green,
-                                  (solicitation.id==1)?Icons.timelapse:Icons.assignment_turned_in_rounded
+                              color: (solicitation.hasBikeShared==false)?Colors.blueAccent:Colors.green,
+                                  (solicitation.hasBikeShared==false)?Icons.timelapse:Icons.assignment_turned_in_rounded
                             ),
                             onTap: (() {
                               showModalBottomSheet(
@@ -192,7 +196,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
             ) 
           ),
           const SizedBox(height: 25,),
-          if(solicitation.id == 1)
+          /*if(solicitation.hasBikeShared == true)
           ElevatedButton(
             style: ButtonStyle(                  
               padding: MaterialStateProperty.all(const EdgeInsets.only(left:30, right: 30, top: 5, bottom: 5)),
@@ -207,7 +211,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
               mainAxisAlignment: MainAxisAlignment.center,  
               children: [
                 Text(
-                  "Cancelar", 
+                  "Devolver", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 )
               ],
@@ -219,11 +223,18 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
               Navigator.pushReplacement(context, MaterialPageRoute(
                 builder: (context) => const ScreenLogin(),
               ));*/
+              final String? email = SharedPreferencesManager.sharedPreferences.getString("email");
+              bool? status = await StationController.returnedBike(solicitation.station, email);
+              if(status == 200){
+                showModal('Bina devolvida com sucesso!', context);
+              }else if (status == 0) {
+                showModal('Bina nao devolvida', context);
+              }
             },
 
-          ),
+          ),*/
 
-          if(solicitation.id != 1)
+          if(solicitation.stationReturn != "")
           Column(
             children: [
               SizedBox(
@@ -267,9 +278,9 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
               ),
             ],
           ),
-          if(solicitation.id != 1)
+          
             const SizedBox(height: 20,),
-          if(solicitation.id != 1)
+          if(solicitation.stationReturn != "1")
             SizedBox(
               width: size.width,
               child: InkWell(
@@ -288,8 +299,16 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                   ],
                 ),
                 onTap: (){
-                  LatLng sourceLocation = const LatLng(-8.8649484, 13.2939577);
-                  LatLng destination = const LatLng(-8.7663581, 13.2482776);
+                  
+                  Station stationInit = StationRepository.list.where((station) =>
+                    station.stationId.contains(solicitation.station)).first;
+
+                  Station stationFinal = StationRepository.list.where((station) =>
+                    station.stationId.contains(solicitation.stationReturn)).first;
+
+                  LatLng sourceLocation = LatLng(stationInit.lat, stationInit.long);
+                  LatLng destination = LatLng(stationFinal.lat, stationFinal.long);
+                  
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) => ScreenTrajectory(sourceLocation: sourceLocation, destination: destination,),
                   ));
@@ -305,6 +324,25 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
     return SolicitationRepository.list;
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
 
+  }
+
+  showModal(message, context){
+    return showModalBottomSheet(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      context: context, 
+      builder: (context)=>SizedBox(
+        height: MediaQuery.of(context).size.height * 0.1,
+        child: Center(child: Text(message)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      anchorPoint: const Offset(4, 5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30)
+        ),
+      ),
+    );
   }
 
 }

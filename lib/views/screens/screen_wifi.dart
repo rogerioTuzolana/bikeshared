@@ -10,6 +10,11 @@ import 'package:flutter_p2p_plus/protos/protos.pb.dart';
 import 'package:provider/provider.dart';
 //import 'package:flutter_p2p_plus/protos/protos.pbserver.dart';
 
+import 'package:chat_bubbles/bubbles/bubble_normal.dart';
+
+import 'package:chat_bubbles/date_chips/date_chip.dart';
+import 'package:chat_bubbles/message_bars/message_bar.dart';
+
 class ScreenWifi extends StatefulWidget {
   //const ScreenWifi({Key? key}) : super(key: key);
   const ScreenWifi({super.key});
@@ -18,7 +23,12 @@ class ScreenWifi extends StatefulWidget {
 }
 
 class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
-
+  /*chat*/
+  Duration duration = new Duration();
+  Duration position = new Duration();
+  bool isPlaying = false;
+  bool isLoading = false;
+  bool isPause = false;
   //Registo de eventos e lista de dispositivos 
   List<StreamSubscription> _subscriptions = [];
   List<WifiP2pDevice> _peers = [];
@@ -177,8 +187,8 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
     return result;
   }
 
-  void _openPortAndAccept(int port) async {
-    MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
+  void _openPortAndAccept(int port, MessageController message) async {
+    //MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
     
     if(!_isOpen){
       var socket = await FlutterP2pPlus.openHostPort(port);
@@ -186,12 +196,12 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
         _socket = socket!;
         SocketRepo.socket = _socket;
       });
-
+      snack("Canal de mensagem aberta na porta $_port",true);
       var buffer = "";
       socket!.inputStream.listen((data) {
         var msg = String.fromCharCodes(data.data);
         buffer += msg;
-        messageProvider.messages.add([buffer, "1"]);
+        message.messages.add([buffer, "1"]);
         if (data.dataAvailable == 0) {
           print("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
           snackBar("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
@@ -200,14 +210,16 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
         }
       });
 
+
       print("_openPort done");
       _isOpen = (await FlutterP2pPlus.acceptPort(port))!;
       print("_accept done: $_isOpen");
+      
     }
   }
 
-  _connectToPort(int port) async {
-    MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
+  _connectToPort(int port, MessageController message) async {
+    //MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
     
     var socket = await FlutterP2pPlus.connectToHost(
       _deviceAddress,
@@ -220,9 +232,11 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
       SocketRepo.socket = _socket;
     });
 
+    snack("Conexão na $_port de mensagem efectuada com sucesso",true);
+
     _socket.inputStream.listen((data) {
       var msg = utf8.decode(data.data);
-      messageProvider.messages.add([msg, "1"]);
+      message.messages.add([msg, "1"]);
       print("Received from ${_isHost ? "Host" : "Client"} $msg");
       snackBar("Received from ${_isHost ? "Host" : "Client"} $msg");
     });
@@ -239,10 +253,12 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
     });*/
 
     print("_connectToPort done");
+    
   }
 
   @override
   Widget build(BuildContext context) {
+    final now = new DateTime.now();
     print(_subscriptions.length);
     
     print("Lista:");
@@ -265,7 +281,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
             child: Row(
               children: [
                 InkWell(
-                  child: Icon(Icons.refresh),
+                  child: const Icon(Icons.refresh),
                   onTap: () async {
                     print("object");
                       
@@ -295,285 +311,358 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
           
         ],
       ),
-      body: /*(_peers.length>0)?*/
-      SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              ListTile(
-                title: Text("Estado da Conexão"),
-                subtitle: Text(_isConnected ? "Conectado: ${_isHost ? "Servidor" : "Cliente"}" : "Desconectado"),
-              ),
-      
-              const Divider(),
-              /*Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Controller",
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),*/
+      body: ChangeNotifierProvider<MessageController>(
+        
+        create: (context)=>MessageController(),
+        builder:(context, child) {
+          final message = Provider.of<MessageController>(context);
+          return SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: const Text("Estado da Conexão"),
+                    subtitle: Text(_isConnected ? "Conectado: ${_isHost ? "Servidor" : "Cliente"}" : "Desconectado"),
+                  ),
+          
+                  const Divider(),
 
-              Column(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.8,
-                    height: 40.0,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        //shape: const CircleBorder(),
-                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
-                        shadowColor: const Color.fromARGB(255, 0, 0, 0),
-                        //padding: EdgeInsets.all(24)
-                        
-                      ),
-                      
-                      child: const Row(
+                  Column(
+                    children: [
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.search_sharp, size: 25,),
-                          Text("Procurar despositivos"),
-                        ],
-                      ),
-                      onPressed: () async { 
-                        if (!_isConnected) await FlutterP2pPlus.discoverDevices();
-                      },
-                      
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20,),
-              Column(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.8,
-                    height: 40.0,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        //shape: const CircleBorder(),
-                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
-                        shadowColor: const Color.fromARGB(255, 0, 0, 0),
-                        //padding: EdgeInsets.all(24)
-                        
-                      ),
-                      onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
-                      
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.door_front_door, size: 25,),
-                          Text("Abrir a porta de conexão"),
-                        ],
-                      ),
-                      
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20,),
-              Column(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.8,
-                    height: 40.0,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        //shape: const CircleBorder(),
-                        backgroundColor: const Color.fromARGB(255, 0, 14, 27),
-                        shadowColor: const Color.fromARGB(255, 0, 0, 0),
-                        //padding: EdgeInsets.all(24)
-                        
-                      ),
-                      onPressed: _isConnected &&!_isHost ? () => _connectToPort(_port) : null,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.connect_without_contact_sharp, size: 25,),
-                          Text("Conectar para porta"),
-                        ],
-                      ),
-                      
-                    ),
-                  ),
-                ],
-              ),
-              /*ListTile(
-                title: const Text("Discover Devices"),
-                onTap: () async {
-                  if (!_isConnected) await FlutterP2pPlus.discoverDevices();
-                  else return;
-                },
-              ),
-              Divider(),*/
-              /*ListTile(
-                title: const Text("Open and accept data from port 8888"),
-                subtitle: _isConnected ? Text("Active") : Text("Disable"),
-                onTap: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
-              ),
-              Divider(),*/
-              /*ListTile(
-                title: const Text("Connect to port 8888"),
-                subtitle: const Text("This is able to only Client"),
-                onTap: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
-              ),
-              Divider(),*/
-              const Text(" "),
-              Column(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.8,
-                    height: 40.0,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        //shape: const CircleBorder(),
-                        backgroundColor: const Color.fromARGB(255, 49, 154, 196),
-                        shadowColor: const Color.fromARGB(255, 94, 141, 155),
-                        //padding: EdgeInsets.all(24)
-                        
-                      ),
-                      onPressed:  _isConnected ?/*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
-                      ()async{
-                        /*showModalBottomSheet(
-                          context: context, builder: (context)=> ScreenChat(),
-                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          anchorPoint: Offset(4, 5),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                              //bottomRight: Radius.circular(30),
-                              //bottomLeft: Radius.circular(30),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width*0.2,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                //shape: const CircleBorder(),
+                                backgroundColor: const Color.fromARGB(255, 0, 14, 27),
+                                shadowColor: const Color.fromARGB(255, 0, 0, 0),
+                                //padding: EdgeInsets.all(24)
+                                
+                              ),
+                              
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.search_sharp, size: 25,),
+                                  //Text("Procurar despositivos"),
+                                ],
+                              ),
+                              onPressed: () async { 
+                                if (!_isConnected) await FlutterP2pPlus.discoverDevices();
+                              },
+                              
                             ),
                           ),
-                        );*/
-                        Navigator.push(context, MaterialPageRoute(
-                          
-                          builder: (context) => ScreenChat(),
-                        ));
-                      }:()=>{
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Sem conexão! Crie uma conexão wifi direct"),
-                            duration: Duration(seconds: 7),
-                            backgroundColor: Color.fromARGB(255, 0, 14, 27),
-                          )
-                        )
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.message_rounded, size: 25,),
-                          Text("Chat"),
+
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width*0.2,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                //shape: const CircleBorder(),
+                                backgroundColor: const Color.fromARGB(255, 0, 14, 27),
+                                shadowColor: const Color.fromARGB(255, 0, 0, 0),
+                                //padding: EdgeInsets.all(24)
+                                
+                              ),
+                              onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888, message) : null,
+                              
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.door_front_door, size: 25,),
+                                  //Text("Abrir a porta de conexão"),
+                                ],
+                              ),
+                              
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width*0.2,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                //shape: const CircleBorder(),
+                                backgroundColor: const Color.fromARGB(255, 0, 14, 27),
+                                shadowColor: const Color.fromARGB(255, 0, 0, 0),
+                                //padding: EdgeInsets.all(24)
+                                
+                              ),
+                              onPressed: _isConnected &&!_isHost ? () => _connectToPort(_port, message) : null,
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.connect_without_contact_sharp, size: 25,),
+                                  //Text("Conectar para porta"),
+                                ],
+                              ),
+                              
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width*0.2,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                //shape: const CircleBorder(),
+                                backgroundColor: const Color.fromARGB(255, 49, 154, 196),
+                                shadowColor: const Color.fromARGB(255, 94, 141, 155),
+                                //padding: EdgeInsets.all(24)
+                                
+                              ),
+                              onPressed:  _isConnected?/*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
+                              ()async{
+                                /*showModalBottomSheet(
+                                  context: context, builder: (context)=> ScreenChat(),
+                                  backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  anchorPoint: Offset(4, 5),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(30),
+                                      topRight: Radius.circular(30),
+                                      //bottomRight: Radius.circular(30),
+                                      //bottomLeft: Radius.circular(30),
+                                    ),
+                                  ),
+                                );*/
+                                Navigator.push(context, MaterialPageRoute(
+                                  
+                                  builder: (context) => ScreenChat(socket: _socket,),
+                                ));
+                              }:()=>{
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Sem conexão! Crie uma conexão wifi direct"),
+                                    duration: Duration(seconds: 7),
+                                    backgroundColor: Color.fromARGB(255, 0, 14, 27),
+                                  )
+                                )
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.message_rounded, size: 25,),
+                                  //Text("Chat"),
+                                ],
+                              ),
+                              
+                            ),
+                          ),
+
                         ],
                       ),
-                      
+                    ],
+                  ),
+                  const SizedBox(height: 20,),
+                  
+                  /*ListTile(
+                    title: const Text("Discover Devices"),
+                    onTap: () async {
+                      if (!_isConnected) await FlutterP2pPlus.discoverDevices();
+                      else return;
+                    },
+                  ),
+                  Divider(),*/
+                  /*ListTile(
+                    title: const Text("Open and accept data from port 8888"),
+                    subtitle: _isConnected ? Text("Active") : Text("Disable"),
+                    onTap: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
+                  ),
+                  Divider(),*/
+                  /*ListTile(
+                    title: const Text("Connect to port 8888"),
+                    subtitle: const Text("This is able to only Client"),
+                    onTap: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
+                  ),
+                  Divider(),*/
+                  
+                  /*ListTile(
+                    title: const Text("Enviar hello world"),
+                    onTap: _isConnected ? () async => await _socket.writeString("Hello World") : null,
+                  ),
+                  Divider(),*/
+                  /*ListTile(
+                    title: const Text("Desconectar"),
+                    onTap: _isConnected ? () async => await _disconnect() : null,
+                  ),
+                  Divider(),*/
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Lista de Despositivo",
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
+                  ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: _peers.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(_peers[index].deviceName),
+                        subtitle: Text(_peers[index].deviceAddress),
+                        trailing: (/*_diviceAddress!="" && _diviceAddress == _peers[index].deviceAddress && */_isConnected == true)?
+                        const Icon(Icons.wifi_outlined,color: Colors.green,):const Icon(Icons.wifi_outlined, color:  Colors.grey,),
+                        onTap: () async{
+                          print("${_isConnected ? "Disconnect" : "Connect"} to device: $_deviceAddress");
+          
+                          if (_isConnected) {
+                            await FlutterP2pPlus.cancelConnect(_peers[index]);
+                              _isConnected = false;
+                              _isHost = false;
+                              _isOpen = false;
+                              _deviceAddress = "";
+                              snack("Conexão desconectada",false);
+                          } else {
+                            await _connect(_peers[index]);
+                            snack("Conexão efectuada",true);
+                          }
+                          
+                          //FlutterP2pPlus.cancelConnect(_peers[index]) 
+                        },
+                        /*onTap: () async{
+                          if(_isConnected == false){
+                            await _connect(_peers[index]);
+                            typeUser = 'server';
+                            //await _connectToPort(_port);
+                          }else{
+          
+                            if (_isConnected == true) {
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => ChatPage(typeUser: typeUser, deviceAddress: '',),
+                              ));
+                            }else{
+                              if(_deviceAddress!=''){
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => ChatPage(typeUser:'client',deviceAddress: _deviceAddress),
+                                ));
+                              }
+                            }
+          
+                          }
+                        },*/
+                      );
+                    },
+                  ),
+
+                  /************ Chat**********/
+
+                  ChangeNotifierProvider<MessageController>(
+                        
+                    create: (context)=>MessageController(),
+                    builder:(context, child) {
+                      final data = context.watch<MessageController>();
+                      print(data.messages);
+                      //bubbleMessage(data.messages);
+                      return Column(
+                            children: <Widget>[
+                              /*BubbleNormalImage(
+                                  id: 'id001',
+                                  image: _image(),
+                                  color: Colors.purpleAccent,
+                                  tail: true,
+                                  delivered: true,
+                              ),*/
+                              /*BubbleNormalAudio(
+                                color: Color(0xFFE8E8EE),
+                                duration: duration.inSeconds.toDouble(),
+                                position: position.inSeconds.toDouble(),
+                                isPlaying: isPlaying,
+                                isLoading: isLoading,
+                                isPause: isPause,
+                                onSeekChanged: _changeSeek,
+                                onPlayPauseButtonClick: _playAudio,
+                                sent: true,
+                              ),*/
+                  
+                              /*DateChip(
+                                date: new DateTime(now.year, now.month, now.day - 2),
+                              ),*/
+                              
+                              for(List<String> message in data.messages)
+                                (message[1]=="0")?
+                                BubbleNormal(
+                                  text: message[0],
+                                  isSender: false,
+                                  color: const Color(0xFF1B97F3),
+                                  tail: false,
+                                  textStyle: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                  ),
+                                ):
+                                BubbleNormal(
+                                  text: message[0],
+                                  isSender: true,
+                                  color: const Color(0xFFE8E8EE),
+                                  tail: true,
+                                  sent: true,
+                                  delivered: true,
+                                ),
+                              
+                              
+                              
+                          MessageBar(
+                            onSend: _isConnected ?(message) async{
+                              print(message);
+                              data.setMessage(message, "0");
+                              
+                              //await _socket.writeString(message);
+                            }: (mesage){
+                              snack("Sem permissão para enviar! Crie uma conexão com um dispositivo",false);
+                            },
+                            actions: const [
+                              
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+          
                 ],
               ),
-              /*ListTile(
-                title: const Text("Enviar hello world"),
-                onTap: _isConnected ? () async => await _socket.writeString("Hello World") : null,
-              ),
-              Divider(),*/
-              /*ListTile(
-                title: const Text("Desconectar"),
-                onTap: _isConnected ? () async => await _disconnect() : null,
-              ),
-              Divider(),*/
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Lista de Despositivo",
-                  style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          );
+          },
+        )
+          /*:Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  //controller: textEditingController,
+                  decoration: InputDecoration(
+                    labelText: 'Digite uma mensagem',
+                  ),
                 ),
-              ),
-              ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: _peers.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(_peers[index].deviceName),
-                    subtitle: Text(_peers[index].deviceAddress),
-                    trailing: (/*_diviceAddress!="" && _diviceAddress == _peers[index].deviceAddress && */_isConnected == true)?
-                    const Icon(Icons.wifi_outlined,color: Colors.green,):const Icon(Icons.wifi_outlined, color:  Colors.grey,),
-                    onTap: () async{
-                      print("${_isConnected ? "Disconnect" : "Connect"} to device: $_deviceAddress");
-      
-                      if (_isConnected) {
-                        await FlutterP2pPlus.cancelConnect(_peers[index]);
-                          _isConnected = false;
-                          _isHost = false;
-                          _isOpen = false;
-                          _deviceAddress = "";
-                          snack("Conexão desconectada",false);
-                      } else {
-                        await _connect(_peers[index]);
-                        snack("Conexão desconectada",true);
-                      }
-                      
-                      //FlutterP2pPlus.cancelConnect(_peers[index]) 
-                    },
-                    /*onTap: () async{
-                      if(_isConnected == false){
-                        await _connect(_peers[index]);
-                        typeUser = 'server';
-                        //await _connectToPort(_port);
-                      }else{
-      
-                        if (_isConnected == true) {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => ChatPage(typeUser: typeUser, deviceAddress: '',),
-                          ));
-                        }else{
-                          if(_deviceAddress!=''){
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ChatPage(typeUser:'client',deviceAddress: _deviceAddress),
-                            ));
-                          }
-                        }
-      
-                      }
-                    },*/
-                  );
-                },
-              ),
-      
-            ],
-          ),
-        ),
-      )/*:Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              //controller: textEditingController,
-              decoration: InputDecoration(
-                labelText: 'Digite uma mensagem',
-              ),
+                ElevatedButton(
+                  onPressed: () async{
+                    print("object");
+                    
+                    var status = await _discover();
+                    print(status);
+                    print("objecttttt");
+                    
+                    
+                  },//sendMessage,
+                  child: Text('Enviar Mensagem'),
+                ),
+                SizedBox(height: 20.0),
+                Text('Última mensagem recebida: $message'),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () async{
-                print("object");
-                
-                var status = await _discover();
-                print(status);
-                print("objecttttt");
-                
-                
-              },//sendMessage,
-              child: Text('Enviar Mensagem'),
-            ),
-            SizedBox(height: 20.0),
-            Text('Última mensagem recebida: $message'),
-          ],
-        ),
-      ),*/
-    );
+          ),*/
+        );
     /*return Scaffold(
       appBar: AppBar(
         title: Text('Wi-Fi Direct P2P'),

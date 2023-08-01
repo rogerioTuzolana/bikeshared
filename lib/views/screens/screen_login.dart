@@ -1,12 +1,10 @@
 
+import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/models/user.dart';
-import 'package:bikeshared/repositories/user_repository.dart';
-import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 import 'package:bikeshared/views/components/auth_link_footer.dart';
-import 'package:bikeshared/views/screens/screen_home.dart';
+import 'package:bikeshared/views/screens/screen_preloading.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
 
@@ -15,15 +13,18 @@ class ScreenLogin extends StatefulWidget {
 }
 
 class _ScreenLoginState extends State<ScreenLogin> {
-  final _id = TextEditingController();
+  final _email = TextEditingController();
   final _password = TextEditingController();
   final _formkey = GlobalKey<FormState>();
   bool isLoading = false;
   late User userExist;
   bool authStatus = false;
 
+  final _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return MaterialApp(
 
       debugShowCheckedModeBanner: false,
@@ -98,14 +99,14 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     const SizedBox(height: 30,),                    
                     
                     TextFormField(
-                      controller: _id,
+                      controller: _email,
                       keyboardType: TextInputType.text,
                       obscureText: false,
                       decoration: InputDecoration(
                         fillColor: Colors.white,
                         filled: true,
                         hintText: 'Email',
-                        suffixIcon: const Icon(Icons.email,),
+                        prefixIcon: const Icon(Icons.email,),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
                         contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                         focusedBorder: OutlineInputBorder(
@@ -114,9 +115,13 @@ class _ScreenLoginState extends State<ScreenLogin> {
                         ),
                       ),
                       maxLines: 1,
-                      validator: (valor){
-                        if (valor!.isEmpty) {
+                      validator: (value){
+                        if (value!.isEmpty) {
                           return 'Informe o seu email';
+                        }
+                        
+                        if (!_emailRegex.hasMatch(value)) {
+                          return 'Por favor, insira um email válido.';
                         }
                         return null;
                       }
@@ -154,24 +159,36 @@ class _ScreenLoginState extends State<ScreenLogin> {
                             isLoading = true;
                           });
                           
-                          Navigator.pushReplacement(
+                          /*Navigator.pushReplacement(
                             context, 
                             MaterialPageRoute(
-                            builder: (context) => const ScreenHome(),
-                          ));
-                          final users = UserRepository.tabela;
+                            builder: (context) => const ScreenPreloading(),
+                          ));*/
+                          /*final users = UserRepository.tabela;*/
                           //print(users[0].email);
                           if (_formkey.currentState!.validate()) {
-                            /*UserController.activeUser(_id.text);
-                            //activeUser
                             
-                            Navigator.pushReplacement(
-                              context, 
-                              MaterialPageRoute(
-                              builder: (context) => const ScreenHome(),
-                            ));*/
+                            int status = await UserController.activeUser(_email.text);
+                            if(status == 0){
+
+                              Navigator.push/*Replacement*/(
+                                context, 
+                                MaterialPageRoute(
+                                builder: (context) => const ScreenPreloading(),/*ScreenHome()*/
+                              ));
+                            }else if (status == 1) {
+                              
+                              //showModal('Este email já existe!', size);
+                              Navigator.push/*Replacement*/(
+                                context, 
+                                MaterialPageRoute(
+                                builder: (context) => const ScreenPreloading(),/*ScreenHome()*/
+                              ));
+                            }else {
+                              showModal('Falha na autenticação! Verifique os dados', size);
+                            }
                             
-                            SharedPreferencesManager.init();
+                            /*SharedPreferencesManager.init();
                             SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
                             
                             for (var user in users) { 
@@ -196,7 +213,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                                 MaterialPageRoute(
                                 builder: (context) => const ScreenHome(),
                               ));
-                            }
+                            }*/
                             
                             
                           }
@@ -260,6 +277,25 @@ class _ScreenLoginState extends State<ScreenLogin> {
         )
       ),
       //color: Colors.red,
+    );
+  }
+
+  showModal(message, size){
+    return showModalBottomSheet(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      context: context, 
+      builder: (context)=>SizedBox(
+        height: size.height * 0.1,
+        child: Center(child: Text(message)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      anchorPoint: const Offset(4, 5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30)
+        ),
+      ),
     );
   }
 }

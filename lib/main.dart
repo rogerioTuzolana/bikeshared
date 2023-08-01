@@ -13,6 +13,7 @@ void main() async{
   if(SharedPreferencesManager.sharedPreferences.getString('token')!=null){
     //UserService.initializeUser();
   }
+  SharedPreferencesManager.sharedPreferences.clear();
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

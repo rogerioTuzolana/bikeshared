@@ -164,7 +164,7 @@ class _ScreenHomeState extends State<ScreenHome> {
   }*/
 
   void loadingStation () {
-    final stations = StationRepository.list;
+    var stations = StationRepository.list;
     for (var station in stations) {
       markers.add(
         Marker(
@@ -211,17 +211,7 @@ class _ScreenHomeState extends State<ScreenHome> {
   @override
   Widget build(BuildContext context) {
     
-    // ignore: prefer_typing_uninitialized_variables
-    /*final container;
-    if (currentPage == DrawerSelectOptions.home) {
-      container = const HomeUser();
-    } else if(currentPage == DrawerSelectOptions.locations){
-      container = const HistoricUser();
-    }else if(currentPage == DrawerSelectOptions.solicitations){
-      container = const Settings();
-    }else if(currentPage == DrawerSelectOptions.help){
-      container = const Help();
-    }*/
+
 
     
     //print(StationRepository.list[0].name);

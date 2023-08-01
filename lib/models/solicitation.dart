@@ -4,6 +4,8 @@ class Solicitation{
   String address;
   double lat;
   double long;
+  bool hasBikeShared;
+  String stationReturn;
 
   Solicitation({
     required this.id,
@@ -11,6 +13,8 @@ class Solicitation{
     required this.address,
     required this.lat,
     required this.long,
+    required this.hasBikeShared,
+    required this.stationReturn,
   });
 
 }

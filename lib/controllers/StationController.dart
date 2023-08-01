@@ -1,6 +1,8 @@
 
 import 'package:bikeshared/env.dart';
+import 'package:bikeshared/models/solicitation.dart';
 import 'package:bikeshared/models/station.dart';
+import 'package:bikeshared/repositories/solicitation_repository.dart';
 import 'package:bikeshared/repositories/station_repository.dart';
 import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/station_details.dart';
@@ -358,15 +360,56 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
         },
         body: xmlBody
       );
-      if (response.statusCode == 200) {
-        //await sharedPreference.setString('token', "${jsonDecode(response.body)['token']}");
-        //print(jsonDecode(response.body)['token']);
-        print('Deu certo');
-        
-        await SharedPreferencesManager.sharedPreferences.setBool('stationSelected',stationId);
-        await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
-        return 0;
-      }else if(response.statusCode == 503){
+
+      final xmlString = response.body;
+      final document = xml.XmlDocument.parse(xmlString);///XmlDocument.parse(xmlString);
+      final statusCode = document.findAllElements('faultstring').isNotEmpty?int.parse(document.findAllElements('faultstring').first.text):500;
+      //final data = document.findAllElements('rent').first.text;
+      //int success = data.isNotEmpty? int.parse(document.findAllElements('rent').first.text):0;
+      print(statusCode);
+      print(document);
+      //print(data);
+      print("statusCode");
+      //return 100;
+
+      /*if(success == 200){
+        return success;
+      }
+      if (data == "") {
+        return 200;
+      }*/
+      if (statusCode == 0) {
+        return statusCode;
+      }else if(statusCode == 1){
+        return statusCode;
+      }else if(statusCode == 2){
+        return statusCode;
+      }
+      else if(statusCode == 3){
+        return statusCode;
+      }
+      print('Deu certo');
+      
+      await SharedPreferencesManager.sharedPreferences.setString('stationSelected',stationId);
+      await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
+
+      Station data = StationRepository.list.where((station) =>
+          station.stationId.contains(stationId)).first;
+      //.toList();
+      SolicitationRepository.list.add(
+        Solicitation(
+          id: 2,
+          station: stationId,
+          address: 'Camama',
+          lat: data.lat/*-8.8662710*/,
+          long: data.long/*13.284544*/,
+          hasBikeShared: true,
+          stationReturn: "",
+        )
+      );
+      
+      return 200;
+      /*else if(statusCode == 503){
         print('Servidor indisponível');
         print(response.body);
         final xmlString = response.body;
@@ -375,7 +418,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
 
         print(document);
         return 1;
-      }else if(response.statusCode == 500){
+      }else if(statusCode == 500){
         print('Falha na requisição');
         print(response.body);
         final xmlString = response.body;
@@ -393,14 +436,91 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
 
         print(document);
         return 1;
-      }
+      }*/
     } catch (e) {
       //print('Tempo de execução demorada!');
       //print(e);
+      await SharedPreferencesManager.sharedPreferences.setString('stationSelected',stationId);
+      await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
+
+      Station data = StationRepository.list.where((station) =>
+          station.stationId.contains(stationId)).first;
+      //.toList();
+      SolicitationRepository.list.add(
+        Solicitation(
+          id: 2,
+          station: stationId,
+          address: 'Camama',
+          lat: data.lat/*-8.8662710*/,
+          long: data.long/*13.284544*/,
+          hasBikeShared: true,
+          stationReturn: "",
+        )
+      );
       print(e.toString());
-      return 1;
+      return 500;
       //rethrow;
     }
+  }
+
+  static Future<bool> returnedBike(stationId,email)async{
+    print(stationId);
+    final xmlBody = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <ws:returnBikeShared>
+              <stationId>$stationId</stationId>
+              <email>$email</email>
+            </ws:returnBikeShared>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
+    try {
+      
+      final url = Uri.parse(Env.url);
+
+      http.Response response = await http.post(
+        url,
+        /*headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            /*HttpHeaders.authorizationHeader: "...",*/
+        },*/
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+        body: xmlBody
+      );
+      
+      if(response.statusCode == 200){
+        final xmlString = response.body;
+        final document = xml.XmlDocument.parse(xmlString);
+        print(document);
+
+        await SharedPreferencesManager.sharedPreferences.setString('stationSelected',"");
+        await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',false);
+        return true;
+      }else if(response.statusCode == 503){
+        print('Servidor indisponível');
+        print(response.body);
+        return false;
+      }else if(response.statusCode == 500){
+        print('Falha na requisição');
+        print(response.body);
+        return false;
+      }else{
+        print('Erro na autenticação');
+        print(response.body);
+        return false;
+      }
+    }catch (e){
+      print('Excecão');
+      print(e.toString());
+      return false;
+    }
+
+    
   }
 
   static Future<bool> getCredit(email) async{

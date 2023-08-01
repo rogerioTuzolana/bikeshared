@@ -7,7 +7,7 @@ class StationRepository /*extends ChangeNotifier*/{
     
     static final List<Station> list1 = [
     Station(
-      stationId: "D01_Station2",
+      stationId: "D01_Station",
       name: 'Escola Nacional de Policia',//'Departamento da Computação',
       address: 'Camama 1',
       lat: -8.8905235,
@@ -19,7 +19,7 @@ class StationRepository /*extends ChangeNotifier*/{
       availableBikeShared: 0,
     ),
     Station(
-      stationId: "D01_Station2",
+      stationId: "D02_Station",
       name: 'Espaço Lazer Nandex',//'Departamento de Física',
       address: 'Camama 1',
       lat: -8.8649484,
@@ -31,7 +31,7 @@ class StationRepository /*extends ChangeNotifier*/{
       availableBikeShared: 0,
     ),
     Station(
-      stationId: "D01_Station2",
+      stationId: "D03_Station",
       name: 'New CVS',//'Departamento de Química',
       address: 'Camama 1',
       lat: -8.7663581,

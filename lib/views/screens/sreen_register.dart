@@ -1,6 +1,7 @@
 
 import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/views/components/auth_input.dart';
+import 'package:bikeshared/views/components/auth_input_email.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 //import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_login.dart';
@@ -109,7 +110,7 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                     const SizedBox(
                       height: 20,
                     ),
-                    AuthInput(
+                    AuthInputEmail(
                       id: _email,
                       hintText: 'Email',
                       obscureText: false,
@@ -154,17 +155,19 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                           print(_password.text);
                           
                           if (_formkey.currentState!.validate()) {
-                            bool status = await UserController.activeUser(_email.text);
-                            if (status == false) {
-                              //_password.clear();
-                              showModal('Este email já existe!', size);
-                            }else{
+                            int status = await UserController.activeUser(_email.text);
+                            if(status == 0){
 
                               Navigator.push/*Replacement*/(
                                 context, 
                                 MaterialPageRoute(
                                 builder: (context) => const ScreenPreloading(),/*ScreenHome()*/
                               ));
+                            }else if (status == 1) {
+                              //_password.clear();
+                              showModal('Este email já existe!', size);
+                            }else {
+                              showModal('Falha na autenticação! Verifique os dados', size);
                             }
                             
                             Future.delayed(const Duration(seconds: 1),() {
@@ -263,7 +266,7 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                   style: TextStyle(
                     fontSize: 16, 
                     fontWeight: FontWeight.w500,
-                    color: Color(0xff002327),
+                    color: Color.fromARGB(255, 35, 170, 185),
                   ),
                 ),
                 Text(
