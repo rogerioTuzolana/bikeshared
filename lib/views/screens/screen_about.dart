@@ -1,6 +1,7 @@
 
 //import 'dart:convert';
 
+import 'package:bikeshared/views/screens/screen_config_ip.dart';
 import 'package:bikeshared/views/screens/screen_home.dart';
 import 'package:bikeshared/views/screens/screen_preloading.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,7 @@ class _ScreenAboutState extends State<ScreenAbout> {
                       Navigator.pushReplacement(
                         context, 
                         MaterialPageRoute(
-                        builder: (context) => const ScreenPreloading(),
+                        builder: (context) => const ScreenConfigIp(),
                       ));
                     },
                     

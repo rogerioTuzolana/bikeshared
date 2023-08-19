@@ -30,6 +30,7 @@ class _ScreenTrajectoryState extends State<ScreenTrajectory> {
   String googleKey = "AIzaSyDFbFxPiczX2GO_iVLeTbzoBGSsw6ma938";//AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw
   
   double lat = 0.0;
+  
   double long = 0.0;
   String error = '';
 

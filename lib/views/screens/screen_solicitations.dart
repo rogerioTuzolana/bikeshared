@@ -1,5 +1,4 @@
 
-import 'package:bikeshared/controllers/StationController.dart';
 import 'package:bikeshared/models/solicitation.dart';
 import 'package:bikeshared/models/station.dart';
 import 'package:bikeshared/repositories/solicitation_repository.dart';
@@ -59,6 +58,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
 
   buildBody(/*List<Station> stations*/){
     Size size = MediaQuery.of(context).size;
+    final station =SharedPreferencesManager.sharedPreferences.getString('stationSelected');
     return 
         Stack(children: [
           
@@ -88,7 +88,8 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                   future: listSolicitations,
                   builder: ((context, snapshot) {
                     if (snapshot.hasData) {
-                      
+                      List<Solicitation> list = SolicitationRepository.list;
+                      int index = 0;
                       return ListView.separated(
                         itemCount: snapshot.data!.length,
                         shrinkWrap: true,
@@ -96,6 +97,8 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (BuildContext context, int nSolicitation){
                           Solicitation solicitation = snapshot.data![nSolicitation];
+                          index++;
+                          print(index);
                           return ListTile(
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -105,8 +108,8 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
                             selectedTileColor:Colors.blueAccent,               
                             title: Text(solicitation.station,style: const TextStyle(color: Colors.black54),),
                             trailing: Icon(
-                              color: (solicitation.hasBikeShared==false)?Colors.blueAccent:Colors.green,
-                                  (solicitation.hasBikeShared==false)?Icons.timelapse:Icons.assignment_turned_in_rounded
+                              color: (solicitation.hasBikeShared==true && solicitation.station==station)?Colors.blueAccent:Colors.green,
+                                  (solicitation.hasBikeShared==true && solicitation.station==station && list.length == index/* && */)?Icons.timelapse:Icons.assignment_turned_in_rounded
                             ),
                             onTap: (() {
                               showModalBottomSheet(
@@ -170,7 +173,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
           SizedBox(
             width: size.width,
             child: Text(
-              solicitation.address,
+              solicitation.station,
               style: const TextStyle(
                 fontSize: 17,
                 color: Color.fromARGB(221, 163, 163, 163)
@@ -251,7 +254,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
               SizedBox(
                 width: size.width,
                 child: Text(
-                  solicitation.address,
+                  solicitation.stationReturn,
                   style: const TextStyle(
                     fontSize: 17,
                     color: Color.fromARGB(221, 139, 139, 139)
@@ -280,7 +283,7 @@ class _ScreenSolicitationsState extends State<ScreenSolicitations> {
           ),
           
             const SizedBox(height: 20,),
-          if(solicitation.stationReturn != "1")
+          if(solicitation.stationReturn != "")
             SizedBox(
               width: size.width,
               child: InkWell(

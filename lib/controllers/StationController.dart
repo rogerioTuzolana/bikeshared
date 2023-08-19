@@ -17,6 +17,7 @@ import 'package:xml/xml.dart' as xml;
 class StationController extends ChangeNotifier{
   static double lat = 0.0;
   static double long = 0.0;
+  static bool globalHasBikeShared = false;
   String error = '';
   //Marcadores de estacoes
   static Set<Marker> markers = <Marker>{};
@@ -392,6 +393,7 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
       
       await SharedPreferencesManager.sharedPreferences.setString('stationSelected',stationId);
       await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',true);
+      globalHasBikeShared = true;
 
       Station data = StationRepository.list.where((station) =>
           station.stationId.contains(stationId)).first;
@@ -498,8 +500,14 @@ String googleKey = "AIzaSyAyutQcGJEDgu1E8uLYIvXxsYjbfIeLdDw";
         final document = xml.XmlDocument.parse(xmlString);
         print(document);
 
+        /*Station station = StationRepository.list.where((station) =>
+          station.stationId.contains(stationId)).first;
+        station.availableBikeShared = station.availableBikeShared+1;*/
+        SolicitationRepository.list.last.stationReturn = stationId;
+
         await SharedPreferencesManager.sharedPreferences.setString('stationSelected',"");
         await SharedPreferencesManager.sharedPreferences.setBool('hasBikeShared',false);
+        globalHasBikeShared = false;
         return true;
       }else if(response.statusCode == 503){
         print('Servidor indisponível');

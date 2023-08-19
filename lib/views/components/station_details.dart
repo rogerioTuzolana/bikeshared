@@ -17,8 +17,8 @@ class _StationDetailsState extends State<StationDetails> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    bool? hasBikeShared = SharedPreferencesManager.sharedPreferences.getBool("hasBikeShared");
-    String? stationSelected = SharedPreferencesManager.sharedPreferences.getString("stationSelected");
+    //bool? hasBikeShared = SharedPreferencesManager.sharedPreferences.getBool("hasBikeShared");
+    //String? stationSelected = SharedPreferencesManager.sharedPreferences.getString("stationSelected");
     
     return Container(
       width: double.infinity,
@@ -95,13 +95,13 @@ class _StationDetailsState extends State<StationDetails> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,  
               children: [
-                hasBikeShared == true /*&& stationSelected == widget.station.stationId*/?
+                StationController.globalHasBikeShared == true /*&& stationSelected == widget.station.stationId*/?
                 const Text(
                   "Devolver", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ):
-                 Text(
-                  "Solicitar ${hasBikeShared == true} $stationSelected ${widget.station.stationId}", 
+                 const Text(
+                  "Solicitar", 
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 )
               ],
@@ -112,11 +112,14 @@ class _StationDetailsState extends State<StationDetails> {
               });
               String? email = SharedPreferencesManager.sharedPreferences.getString("email");
               
-              if(hasBikeShared == false){
+              if(StationController.globalHasBikeShared == false){
                 int status = await StationController.solicitation(widget.station.stationId, email);
 
                 if(status == 200){
                   await StationController.listStations();
+                  setState(() {
+                    widget.station.availableBikeShared--;
+                  });
                   showModal('Bina alugada com sucesso!', context);
 
                 }else if (status == 0) {
@@ -129,14 +132,20 @@ class _StationDetailsState extends State<StationDetails> {
                   showModal('Estação não encontrada', context);
                 }else if(status == 500){
                   await StationController.listStations();
+                  setState(() {
+                      widget.station.availableBikeShared--;
+                    });
                   showModal('Bina alugada com sucesso!', context);
                 }
 
               }else{
                   bool? status = await StationController.returnedBike(widget.station.stationId, email);
-                  if(status == 200){
+                  if(status == true){
+                    setState(() {
+                      widget.station.availableBikeShared++;
+                    });
                     showModal('Bina devolvida com sucesso!', context);
-                  }else if (status == 0) {
+                  }else if (status == false) {
                     showModal('Bina nao devolvida', context);
                   }
               }

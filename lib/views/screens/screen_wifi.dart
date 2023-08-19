@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:bikeshared/controllers/MessageController.dart';
 import 'package:bikeshared/repositories/socket.dart';
-import 'package:bikeshared/views/screens/screen_chat.dart';
+//import 'package:bikeshared/views/screens/screen_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 import 'package:flutter_p2p_plus/protos/protos.pb.dart';
@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 
-import 'package:chat_bubbles/date_chips/date_chip.dart';
+//import 'package:chat_bubbles/date_chips/date_chip.dart';
 import 'package:chat_bubbles/message_bars/message_bar.dart';
 
 class ScreenWifi extends StatefulWidget {
@@ -24,6 +24,8 @@ class ScreenWifi extends StatefulWidget {
 
 class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
   /*chat*/
+  bool statusMessage = false;
+  bool statusDivaces = false;
   Duration duration = new Duration();
   Duration position = new Duration();
   bool isPlaying = false;
@@ -187,7 +189,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
     return result;
   }
 
-  void _openPortAndAccept(int port, MessageController message) async {
+  void _openPortAndAccept(int port/*, MessageController message*/) async {
     //MessageController messageProvider = Provider.of<MessageController>(context, listen: false);
     
     if(!_isOpen){
@@ -201,11 +203,14 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
       socket!.inputStream.listen((data) {
         var msg = String.fromCharCodes(data.data);
         buffer += msg;
-        message.messages.add([buffer, "1"]);
+        //message.messages.add([buffer, "1"]);
+        setState(() {
+          MessageController.setMessage(buffer, "1");
+        });
         if (data.dataAvailable == 0) {
           print("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
           snackBar("Data Received from ${_isHost ? "Client" : "Host"}: $buffer");
-          socket.writeString("Successfully received: $buffer");
+          //socket.writeString("Successfully received: $buffer");
           buffer = "";
         }
       });
@@ -236,9 +241,12 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
 
     _socket.inputStream.listen((data) {
       var msg = utf8.decode(data.data);
-      message.messages.add([msg, "1"]);
-      print("Received from ${_isHost ? "Host" : "Client"} $msg");
-      snackBar("Received from ${_isHost ? "Host" : "Client"} $msg");
+      //message.messages.add([msg, "1"]);
+      setState(() {
+        MessageController.setMessage(msg, "1");
+      });
+      print("Recebido pelo ${_isHost ? "Host" : "Client"} $msg");
+      //snackBar("Recebido pelo ${_isHost ? "Host" : "Client"} $msg");
     });
     /*
     var buffer = "";
@@ -258,7 +266,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final now = new DateTime.now();
+    //final now = new DateTime.now();
     print(_subscriptions.length);
     
     print("Lista:");
@@ -344,6 +352,9 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                                 //padding: EdgeInsets.all(24)
                                 
                               ),
+                              onPressed: statusDivaces?() async { 
+                                if (!_isConnected) await FlutterP2pPlus.discoverDevices();
+                              }:null,
                               
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -352,9 +363,6 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                                   //Text("Procurar despositivos"),
                                 ],
                               ),
-                              onPressed: () async { 
-                                if (!_isConnected) await FlutterP2pPlus.discoverDevices();
-                              },
                               
                             ),
                           ),
@@ -370,7 +378,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                                 //padding: EdgeInsets.all(24)
                                 
                               ),
-                              onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888, message) : null,
+                              onPressed: _isConnected && _isHost ? () => _openPortAndAccept(8888/*, message*/) : null,
                               
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -417,34 +425,26 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                                 //padding: EdgeInsets.all(24)
                                 
                               ),
-                              onPressed:  _isConnected?/*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
-                              ()async{
-                                /*showModalBottomSheet(
-                                  context: context, builder: (context)=> ScreenChat(),
-                                  backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  anchorPoint: Offset(4, 5),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(30),
-                                      topRight: Radius.circular(30),
-                                      //bottomRight: Radius.circular(30),
-                                      //bottomLeft: Radius.circular(30),
-                                    ),
-                                  ),
-                                );*/
-                                Navigator.push(context, MaterialPageRoute(
-                                  
-                                  builder: (context) => ScreenChat(socket: _socket,),
-                                ));
+                              onPressed:  statusMessage?/*_isConnected ? () async => await _socket.writeString("Hello World") : null,*/
+                              (){
+                                setState(() {
+                                  statusMessage = false;
+                                  statusDivaces = true;
+                                });
+                                
+                                
                               }:()=>{
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                setState(() {
+                                  statusMessage = true;
+                                  statusDivaces = false;
+                                })
+                                /*ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Sem conexão! Crie uma conexão wifi direct"),
                                     duration: Duration(seconds: 7),
                                     backgroundColor: Color.fromARGB(255, 0, 14, 27),
                                   )
-                                )
+                                )*/
                               },
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -463,38 +463,9 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                   ),
                   const SizedBox(height: 20,),
                   
-                  /*ListTile(
-                    title: const Text("Discover Devices"),
-                    onTap: () async {
-                      if (!_isConnected) await FlutterP2pPlus.discoverDevices();
-                      else return;
-                    },
-                  ),
-                  Divider(),*/
-                  /*ListTile(
-                    title: const Text("Open and accept data from port 8888"),
-                    subtitle: _isConnected ? Text("Active") : Text("Disable"),
-                    onTap: _isConnected && _isHost ? () => _openPortAndAccept(8888) : null,
-                  ),
-                  Divider(),*/
-                  /*ListTile(
-                    title: const Text("Connect to port 8888"),
-                    subtitle: const Text("This is able to only Client"),
-                    onTap: _isConnected &&!_isHost ? () => _connectToPort(8888) : null,
-                  ),
-                  Divider(),*/
                   
-                  /*ListTile(
-                    title: const Text("Enviar hello world"),
-                    onTap: _isConnected ? () async => await _socket.writeString("Hello World") : null,
-                  ),
-                  Divider(),*/
-                  /*ListTile(
-                    title: const Text("Desconectar"),
-                    onTap: _isConnected ? () async => await _disconnect() : null,
-                  ),
-                  Divider(),*/
                   const Divider(),
+                  if(statusDivaces)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -502,6 +473,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
+                  if(statusDivaces)
                   ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
@@ -555,15 +527,15 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                   ),
 
                   /************ Chat**********/
-
-                  ChangeNotifierProvider<MessageController>(
+                  if(statusMessage)
+                  /*ChangeNotifierProvider<MessageController>(
                         
                     create: (context)=>MessageController(),
                     builder:(context, child) {
                       final data = context.watch<MessageController>();
                       print(data.messages);
                       //bubbleMessage(data.messages);
-                      return Column(
+                      return */Column(
                             children: <Widget>[
                               /*BubbleNormalImage(
                                   id: 'id001',
@@ -588,7 +560,7 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                                 date: new DateTime(now.year, now.month, now.day - 2),
                               ),*/
                               
-                              for(List<String> message in data.messages)
+                              for(List<String> message in MessageController.messages/*data.messages*/)
                                 (message[1]=="0")?
                                 BubbleNormal(
                                   text: message[0],
@@ -612,11 +584,15 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                               
                               
                           MessageBar(
-                            onSend: _isConnected ?(message) async{
+                            onSend: _isConnected?(message) async{
                               print(message);
-                              data.setMessage(message, "0");
+                              setState(() {
+                                MessageController.setMessage(message, "0");
+                              });
                               
-                              //await _socket.writeString(message);
+                              //data.setMessage(message, "0");
+                              
+                              await _socket.writeString(message);
                             }: (mesage){
                               snack("Sem permissão para enviar! Crie uma conexão com um dispositivo",false);
                             },
@@ -625,9 +601,9 @@ class _ScreenWifiState extends State<ScreenWifi> with WidgetsBindingObserver {
                             ],
                           ),
                         ],
-                      );
+                      )/*;
                     },
-                  ),
+                  ),*/
           
                 ],
               ),

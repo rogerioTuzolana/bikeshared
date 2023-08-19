@@ -144,7 +144,7 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: isLoading? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,)):const Text('Cadastrar',style: TextStyle(fontSize: 20,color: Colors.white),),
+                        child: isLoading? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,)):const Text('Cadastrar',style: TextStyle(fontSize: 18,color: Colors.white),),
                         onPressed: () async {
                           setState(() {
                             isLoading = true;
@@ -155,9 +155,9 @@ class _ScreenRegisterState extends State<ScreenRegister> {
                           print(_password.text);
                           
                           if (_formkey.currentState!.validate()) {
-                            int status = await UserController.activeUser(_email.text);
+                            int status = await UserController.activeUser(_email.text, _name.text, _password.text);
                             if(status == 0){
-
+                              
                               Navigator.push/*Replacement*/(
                                 context, 
                                 MaterialPageRoute(

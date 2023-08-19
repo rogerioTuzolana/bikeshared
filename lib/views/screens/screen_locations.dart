@@ -193,7 +193,6 @@ class _ScreenLocationsState extends State<ScreenLocations> {
   Future<List<Station>> getStations() async{
 
     return StationRepository.list;
-    //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
 
   }
 

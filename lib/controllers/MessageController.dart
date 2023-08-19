@@ -7,7 +7,7 @@ import 'package:flutter_p2p_plus/flutter_p2p_plus.dart';
 
 class MessageController extends ChangeNotifier{
   late P2pSocket socket;
-  List<List<String>> messages = [
+  static List<List<String>> messages = [
     /*['Ola',"0"],
     ['Oi',"1"],
     ['Tudo bem',"0"],
@@ -16,11 +16,11 @@ class MessageController extends ChangeNotifier{
 
   
   
-  setMessage(message, level) async{
+  static setMessage(message, level) async{
     
     messages.add([message,level]);
 
-    notifyListeners();
+    //notifyListeners();
   }
 
 }

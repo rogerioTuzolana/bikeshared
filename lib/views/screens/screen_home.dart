@@ -155,13 +155,6 @@ class _ScreenHomeState extends State<ScreenHome> {
     
   }
 
-  /*Uint8List? resizeImage(Uint8List data, width, height) {
-    Uint8List? resizedData = data;
-    IMG.Image? img = IMG.decodeImage(data);
-    IMG.Image resized = IMG.copyResize(img!, width: width, height: height);
-    resizedData = Uint8List.fromList(IMG.encodePng(resized));
-    return resizedData;
-  }*/
 
   void loadingStation () {
     var stations = StationRepository.list;
@@ -209,6 +202,7 @@ class _ScreenHomeState extends State<ScreenHome> {
   }
 
   @override
+  
   Widget build(BuildContext context) {
     
 
@@ -338,26 +332,7 @@ class _ScreenHomeState extends State<ScreenHome> {
       color: selected && id != 5? Colors.grey[300]: Colors.transparent,
       child: InkWell(
         onTap: (){
-          /*if (id != 6) {
-            Navigator.pop(context);
-          }*/
           
-          /*setState(() {
-            if (id == 1) {
-              currentPage = DrawerSelectOptions.home;
-            } else if(id == 2){
-              currentPage = DrawerSelectOptions.locations;
-            }else if(id == 3){
-              currentPage = DrawerSelectOptions.solicitations;
-            }else if(id == 4){
-              currentPage = DrawerSelectOptions.bonus;
-            }else if(id == 5){
-              currentPage = DrawerSelectOptions.help;
-            }else if(id == 6){
-              //currentPage = DrawerSelectOptions.logout;
-              showModalBottomSheet(context: context, builder: (context)=>confirmLogout(context));
-            }
-          });*/
           if (id == 1) {
             //Navigator.of(context).pop();
             Navigator.push(context, MaterialPageRoute(
@@ -525,7 +500,7 @@ class _ScreenHomeState extends State<ScreenHome> {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: double.infinity,
-      height: size.height * 0.15,
+      height: size.height * 0.17,
       margin: const EdgeInsets.symmetric(
         vertical: 15,
         horizontal: 10,

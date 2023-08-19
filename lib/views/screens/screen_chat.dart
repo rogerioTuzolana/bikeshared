@@ -1,5 +1,5 @@
 
-import 'package:bikeshared/controllers/MessageController.dart';
+/*import 'package:bikeshared/controllers/MessageController.dart';
 import 'package:bikeshared/repositories/socket.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 
@@ -181,4 +181,4 @@ class _ScreenChatState extends State<ScreenChat> {
       )
     );
   }
-}
+}*/

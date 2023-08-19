@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 class UserController extends ChangeNotifier{
 
-  static Future<int> activeUser(email) async{
+  static Future<int> activeUser(email, name, password) async{
     //SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final xmlBody = '''
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.bikeshareds.org/">
@@ -53,8 +53,9 @@ class UserController extends ChangeNotifier{
         //SharedPreferencesManager.init();
         SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
         //await sharedPreference.setString('token', "${userExist.id}");
-        await sharedPreference.setString('name', "none");
+        await sharedPreference.setString('name', name);
         await sharedPreference.setString('email', email.first.text);
+        await sharedPreference.setString('password', password);
         await sharedPreference.setBool('hasBikeShared', bool.fromEnvironment(hasBikeShared.first.text));
         await sharedPreference.setInt('credit', int.parse(credit.first.text));
         

@@ -31,7 +31,7 @@ class _ScreenProfileState extends State<ScreenProfile> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    
+    print(hasBikeShared);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 14, 27),
@@ -85,7 +85,7 @@ class _ScreenProfileState extends State<ScreenProfile> {
                   const SizedBox(height: 5),
 
                   
-                  (hasBikeShared==false)?
+                  (StationController.globalHasBikeShared==false)?
                   const Text(
                     "Nenhuma",
                     style: TextStyle(fontSize: 18),

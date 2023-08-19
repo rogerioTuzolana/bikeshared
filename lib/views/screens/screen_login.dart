@@ -1,10 +1,12 @@
 
 import 'package:bikeshared/controllers/UserController.dart';
 import 'package:bikeshared/models/user.dart';
+import 'package:bikeshared/services/shared_preferences_manager.dart';
 import 'package:bikeshared/views/components/auth_input_password.dart';
 import 'package:bikeshared/views/components/auth_link_footer.dart';
 import 'package:bikeshared/views/screens/screen_preloading.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
 
@@ -159,16 +161,36 @@ class _ScreenLoginState extends State<ScreenLogin> {
                             isLoading = true;
                           });
                           
-                          /*Navigator.pushReplacement(
-                            context, 
-                            MaterialPageRoute(
-                            builder: (context) => const ScreenPreloading(),
-                          ));*/
-                          /*final users = UserRepository.tabela;*/
-                          //print(users[0].email);
+                          
+                          SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
+                          String? email = sharedPreference.getString("email");
+                          String? password = sharedPreference.getString("password");
+                          FocusScopeNode keyboardCurrentFocus = FocusScope.of(context);
+                          if (email == _email.text && password == _password.text) {
+                            //Fechar o teclado do login
+                            if (keyboardCurrentFocus.hasPrimaryFocus) {
+                              keyboardCurrentFocus.unfocus();
+                            }
+                            Navigator.push/*Replacement*/(
+                              context, 
+                              MaterialPageRoute(
+                              builder: (context) => const ScreenPreloading(),
+                            ));
+
+                            Future.delayed(const Duration(seconds: 1),() {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
+
+                          }else {
+                            showModal('Falha na autenticação! Verifique os dados', size);
+                          }
+  
+                          /*simmm
                           if (_formkey.currentState!.validate()) {
                             
-                            int status = await UserController.activeUser(_email.text);
+                            int status = await UserController.activeUser(_email.text, "none");
                             if(status == 0){
 
                               Navigator.push/*Replacement*/(
@@ -188,35 +210,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                               showModal('Falha na autenticação! Verifique os dados', size);
                             }
                             
-                            /*SharedPreferencesManager.init();
-                            SharedPreferences sharedPreference = SharedPreferencesManager.sharedPreferences;
-                            
-                            for (var user in users) { 
-                              if (user.email == _id.text && user.password == _password.text) {
-                                authStatus = true;
-                                userExist = user;
-                                //print("Temmmmmmmmmmm");
-                                continue;
-                              }
-                            }
-
-                            if(authStatus==true){
-
-                              await sharedPreference.setString('token', "${userExist.id}");
-                              await sharedPreference.setString('name', userExist.name);
-                              await sharedPreference.setString('email', userExist.email);
-                              await sharedPreference.setInt('credit', 10);
-                              await sharedPreference.setBool('hasBikeShared', false);
-
-                              Navigator.pushReplacement(
-                                context, 
-                                MaterialPageRoute(
-                                builder: (context) => const ScreenHome(),
-                              ));
-                            }*/
-                            
-                            
-                          }
+                          }*/
 
                           Future.delayed(const Duration(seconds: 1),() {
                             setState(() {

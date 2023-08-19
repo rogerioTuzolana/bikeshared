@@ -16,7 +16,7 @@ class StationRepository /*extends ChangeNotifier*/{
       freeDocks: 3,
       totalGets: 0,
       totalReturns: 0,
-      availableBikeShared: 0,
+      availableBikeShared: 2,
     ),
     Station(
       stationId: "D02_Station",
@@ -28,7 +28,7 @@ class StationRepository /*extends ChangeNotifier*/{
       freeDocks: 3,
       totalGets: 0,
       totalReturns: 0,
-      availableBikeShared: 0,
+      availableBikeShared: 10,
     ),
     Station(
       stationId: "D03_Station",
@@ -40,7 +40,7 @@ class StationRepository /*extends ChangeNotifier*/{
       freeDocks: 3,
       totalGets: 0,
       totalReturns: 0,
-      availableBikeShared: 0,
+      availableBikeShared: 5,
     ) 
   ];
 }
